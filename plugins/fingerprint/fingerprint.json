@@ -1,0 +1,87 @@
+[{
+    "rule_id": "1",
+    "level": "1",
+    "softhard": "2",
+    "product": "PHPSHE",
+    "company": "haovip",
+    "category": "Other Software System",
+    "parent_category": "Software System",
+    "rules": [
+        [{
+            "match": "body_contains",
+            "content": "powered by phpshe"
+        }]
+    ]
+},
+{
+    "rule_id": "2",
+    "level": "2",
+    "softhard": "2",
+    "product": "CNPOWER-OA(OA8000)",
+    "company": "CNPOWER",
+    "category": "OA",
+    "parent_category": "Enterprise Application",
+    "rules": [
+        [{
+            "match": "body_contains",
+            "content": "/oaapp/webobjects/oaapp.woa"
+        }]
+    ]
+},
+{
+    "rule_id": "3",
+    "level": "3",
+    "softhard": "3",
+    "product": "test",
+    "company": "test",
+    "category": "OA",
+    "parent_category": "Enterprise Application",
+    "rules": [
+        [{
+            "match": "body_contains",
+            "content": "/oaapp/webobjects/oaapp.woa"
+        }]
+    ]
+},
+{
+    "rule_id": "22",
+    "level": "5",
+    "softhard": "2",
+    "product": "SiteServer",
+    "company": "siteserver",
+    "category": "Other Enterprise Application",
+    "parent_category": "Enterprise Application",
+    "rules": [
+        [{
+                "match": "body_contains",
+                "content": "powered by"
+            },
+            {
+                "match": "body_contains",
+                "content": "http://www.siteserver.cn"
+            }
+        ],
+        [{
+            "match": "body_contains",
+            "content": "siteserver cms"
+        }],
+        [{
+            "match": "title_contains",
+            "content": "powered by siteserver cms"
+        }],
+        [{
+                "match": "body_contains",
+                "content": "t_系统首页模板"
+            },
+            {
+                "match": "body_contains",
+                "content": "siteserver"
+            }
+        ],
+        [{
+            "match": "body_contains",
+            "content": "sitefiles"
+        }]
+    ]
+}
+]
