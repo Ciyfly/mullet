@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2021-03-23 15:51:56
-LastEditors: recar
-LastEditTime: 2022-01-12 16:34:55
+LastEditors: Recar
+LastEditTime: 2022-01-12 21:41:26
 '''
 from lib.utils import Utils
 from lib.controller import Controller
@@ -25,7 +25,7 @@ class Filter(object):
         # check
         if not url_info:
             return
-        logger.debug("url: {0} type: {1}".format(url_info["url"], url_info['type']))
+        logger.debug("[*] url: {0} type: {1}".format(url_info["url"], url_info['type']))
         # insert url
         controller.run(url_info, req, rsp)
 

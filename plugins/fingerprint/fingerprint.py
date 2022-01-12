@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-11 18:16:18
-LastEditors: recar
-LastEditTime: 2022-01-12 18:49:37
+LastEditors: Recar
+LastEditTime: 2022-01-12 21:54:54
 '''
 from lib.log import logger
 from plugins.scan import Base
@@ -12,8 +12,8 @@ import json
 import os
 
 class Fingerprint(Base):
-    def __init__(self, result_queue):
-        super(Fingerprint, self).__init__(result_queue)
+    def __init__(self, report_work):
+        super(Fingerprint, self).__init__(report_work)
         self.logger= logger
         self.timeout = 3
         self.base_path = os.path.dirname(os.path.abspath(__file__))
@@ -86,7 +86,7 @@ class Fingerprint(Base):
                     else:
                         logger.error("is unkown match!!!!!!")
                     if status:
-                        logger.info(f"fingerprint find: {product}")
+                        logger.info(f"[+] fingerprint find: {product}")
                         fingerprint_result.append(product)
                         break
             # else:
@@ -94,6 +94,8 @@ class Fingerprint(Base):
         if fingerprint_result:
             result = {
                 "plugins": self.plugins_name,
-                "result": fingerprint_result
+                "result": fingerprint_result,
+                "url_info": url_info,
+                "req": req,
             }
             self.to_result(result)

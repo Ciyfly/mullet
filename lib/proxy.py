@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-11 18:12:13
-LastEditors: recar
-LastEditTime: 2022-01-12 17:29:24
+LastEditors: Recar
+LastEditTime: 2022-01-12 21:25:35
 '''
 from mitmproxy.options import Options
 from mitmproxy.proxy.config import ProxyConfig
@@ -16,7 +16,7 @@ import traceback
 
 
 class Addon(object):
-    def __init__(self,):
+    def __init__(self,): 
         pass
 	
     def request(self, flow):

@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 11:05:17
-LastEditors: recar
-LastEditTime: 2022-01-12 18:52:06
+LastEditors: Recar
+LastEditTime: 2022-01-12 21:51:38
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -34,8 +34,9 @@ class Controller(object):
         poc_list = list()
         
         # 启动报告模块
-        report = Report(self.result_queue)
-        report.run()
+        self.report = Report()
+        self.report_work = self.report.report_work
+        # report.run()
         # init modul
         self._run_fingerprint()
         # self._run_sensitive_info()
@@ -45,7 +46,7 @@ class Controller(object):
 
     # 指纹
     def _run_fingerprint(self):
-        fingerprint_handler = Fingerprint(self.result_queue)
+        fingerprint_handler = Fingerprint(self.report_work)
         def consumer(data):
             data = data[1].get("data")
             url_info = data.get("url_info")
@@ -97,9 +98,9 @@ class Controller(object):
     def run(self, url_info, req, rsp):
         domain =  url_info.get('host')
         gener_url = url_info.get("gener_url")
-        if len(self.domains)<1:
+        if domain not in self.domains:
             self.domains.add(domain)
-            self.logger.info(f"gen task fingerprint: {domain}")
+            self.logger.info(f"[*] gen task fingerprint: {domain}")
             # 推指纹
             self.fingerprint_work.put({"data":{
                 "url_info": url_info,
@@ -121,12 +122,12 @@ class Controller(object):
         #         "rsp": rsp
         #     })
         #     self.domains.add(domain)
-        # if gener_url not in self.urls:
-        #     # 推通用插件
-        #     self.logger.info("gen task general")
-        #     self.general_work.put({
-        #         "url_info": url_info,
-        #         "req": req,
-        #         "rsp": rsp
-        #     })
-        #     self.urls.add(gener_url)
+        if gener_url not in self.urls:
+            # 推通用插件
+            self.logger.debug("[*] gen task general")
+            self.urls.add(gener_url)
+            # self.general_work.put({
+            #     "url_info": url_info,
+            #     "req": req,
+            #     "rsp": rsp
+            # })

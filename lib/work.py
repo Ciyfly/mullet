@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-10 10:50:05
-LastEditors: recar
-LastEditTime: 2022-01-12 18:34:40
+LastEditors: Recar
+LastEditTime: 2022-01-12 22:01:13
 '''
 
 from queue import PriorityQueue
@@ -60,7 +60,6 @@ class Worker(object):
         运行方法
         @params consumer_func 消费者函数
         '''
-        self.logger.info("start work {}".format(self.consumer_count))
         threads = []
         for i in range(self.consumer_count):
             t = threading.Thread(target=self.consumer,args=(consumer_func,))

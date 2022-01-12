@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-01-11 18:08:25
- * @LastEditors: recar
- * @LastEditTime: 2022-01-12 11:04:18
+ * @LastEditors: Recar
+ * @LastEditTime: 2022-01-12 22:07:35
 -->
 # mullet
 被动代理扫描器 梭鱼
@@ -23,3 +23,4 @@ poc通用模块
 上面一个url就可以添加出来任务了
 
 然后代理访问开始后或者后续流量有url的就交给url识别  
+安装证书 代理开启后访问 http://mitm.it/  

@@ -3,8 +3,8 @@
 '''
 Author: Recar
 Date: 2021-06-28 22:40:10
-LastEditors: recar
-LastEditTime: 2022-01-12 18:16:26
+LastEditors: Recar
+LastEditTime: 2022-01-12 21:39:34
 '''
 from os import stat
 from lib.log import logger
@@ -50,8 +50,7 @@ class Utils(object):
             query_str +=f"{key}={value}"
         path_str = "_".join(url_paths)
         url_str = f"{netloc}_{path_str}_{query_str}"
-        logger.debug(f"url_str: {url_str}")
-
+        logger.debug(f"[*] url_str: {url_str}")
         return Utils.get_md5(url_str)
 
     @staticmethod

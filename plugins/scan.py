@@ -2,18 +2,18 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 10:07:56
-LastEditors: recar
-LastEditTime: 2022-01-12 17:17:27
+LastEditors: Recar
+LastEditTime: 2022-01-12 21:51:06
 '''
 import os
 import urllib.parse
 from lib.log import logger
 
 class Base(object):
-    def __init__(self, result_queue):
+    def __init__(self, report_work):
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.logger = logger
-        self.result_queue = result_queue
+        self.report_work = report_work
 
     def url_completion(self, url, path):
         if "http" in path:
@@ -24,4 +24,4 @@ class Base(object):
         return f"{scheme}://{netloc}{path}"
 
     def to_result(self, result):
-        self.result_queue.put(result)
+        self.report_work.put(result)
