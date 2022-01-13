@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-11 18:16:18
-LastEditors: Recar
-LastEditTime: 2022-01-12 21:54:54
+LastEditors: recar
+LastEditTime: 2022-01-13 15:01:09
 '''
 from lib.log import logger
 from plugins.scan import Base
@@ -94,7 +94,7 @@ class Fingerprint(Base):
         if fingerprint_result:
             result = {
                 "plugins": self.plugins_name,
-                "result": fingerprint_result,
+                "payload": fingerprint_result,
                 "url_info": url_info,
                 "req": req,
             }

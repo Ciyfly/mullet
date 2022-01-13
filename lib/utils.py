@@ -3,12 +3,13 @@
 '''
 Author: Recar
 Date: 2021-06-28 22:40:10
-LastEditors: Recar
-LastEditTime: 2022-01-12 21:39:34
+LastEditors: recar
+LastEditTime: 2022-01-13 15:35:49
 '''
 from os import stat
 from lib.log import logger
 from urllib.parse import unquote
+from cowpy.cow import milk_random_cow
 import urllib.parse
 import traceback
 import platform
@@ -142,6 +143,14 @@ class Utils(object):
 
     @staticmethod
     def parser_req(flow):
+        def raw(request):
+            req_data = '%s %s %s\r\n' % (str(request.method), str(request.path), str(request.http_version))
+            # Add headers to the request
+            for k, v in request.headers.items():
+                req_data += k + ': ' + v + '\r\n'
+            req_data += '\r\n'
+            req_data += str(request.raw_content, encoding="utf-8")
+            return req_data
         req = dict()
         req["host"] = flow.request.host
         req["method"] = flow.request.method
@@ -153,6 +162,7 @@ class Utils(object):
         req["text"] = str(flow.request.content)
         req["timestamp_start"] = flow.request.timestamp_start
         req["timestamp_end"] = flow.request.timestamp_end
+        req["raw"] = raw(flow.request)
         return req
 
     @staticmethod
@@ -184,3 +194,10 @@ class Utils(object):
         if platform.system().lower() == 'windows':
             return True
         return False
+
+    @staticmethod
+    def banner():
+        msg = "mullet v0.1"
+        sfw = True
+        s = milk_random_cow(msg, sfw=sfw)
+        logger.info(s)

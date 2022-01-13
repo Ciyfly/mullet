@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 11:05:17
-LastEditors: Recar
-LastEditTime: 2022-01-12 21:51:38
+LastEditors: recar
+LastEditTime: 2022-01-13 11:44:50
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -17,8 +17,8 @@ import os
 
 class Controller(object):
     def __init__(self,):
-        self.domains = set()
-        self.urls = set()
+        self.domains = dict()
+        self.urls = dict()
         self.result_queue = Queue()
         self.logger = logger
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -99,7 +99,7 @@ class Controller(object):
         domain =  url_info.get('host')
         gener_url = url_info.get("gener_url")
         if domain not in self.domains:
-            self.domains.add(domain)
+            self.domains[domain]=""
             self.logger.info(f"[*] gen task fingerprint: {domain}")
             # 推指纹
             self.fingerprint_work.put({"data":{
@@ -108,12 +108,12 @@ class Controller(object):
                 "rsp": rsp
             }})
             # 推敏感信息扫描
-        #     self.logger.info("gen task disSenInfo")
-        #     self.disSenInfo_work.put({
-        #         "url_info": url_info,
-        #         "req": req,
-        #         "rsp": rsp
-        #     })
+            # self.logger.info("gen task disSenInfo")
+            # self.disSenInfo_work.put({
+            #     "url_info": url_info,
+            #     "req": req,
+            #     "rsp": rsp
+            # })
         #     # 推poc
         #     self.logger.info("gen task poc")
         #     self.poc_work.put({
@@ -125,7 +125,7 @@ class Controller(object):
         if gener_url not in self.urls:
             # 推通用插件
             self.logger.debug("[*] gen task general")
-            self.urls.add(gener_url)
+            self.urls[gener_url]=""
             # self.general_work.put({
             #     "url_info": url_info,
             #     "req": req,
