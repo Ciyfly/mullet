@@ -3,12 +3,12 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-01-13 11:44:50
+LastEditTime: 2022-01-13 16:27:14
 '''
 from lib.work import Worker
 from plugins.report import Report
 from plugins.fingerprint.fingerprint import Fingerprint
-from plugins.sensitive_info.dis_sen_info import DisSenInfo
+from plugins.sensitive_info.sensitive_info import DisSenInfo
 from lib.log import logger
 from lib.utils import Utils
 from queue import Queue
@@ -56,15 +56,15 @@ class Controller(object):
         self.fingerprint_work = Worker(consumer, consumer_count=1, logger=logger)
 
     # 敏感信息
-    # def _run_sensitive_info(self):
-    #     disSenInfo_handler = DisSenInfo(self.result_queue)
-    #     def consumer(data):
-    #         data = data[1].get("data")
-    #         url_info = data.get("url_info")
-    #         req = data.get("req")
-    #         rsp = data.get("rsp")
-    #         disSenInfo_handler.run(url_info, req, rsp)
-    #     self.disSenInfo_work = Worker(consumer, consumer_count=1)
+    def _run_sensitive_info(self):
+        disSenInfo_handler = DisSenInfo(self.result_queue)
+        def consumer(data):
+            data = data[1].get("data")
+            url_info = data.get("url_info")
+            req = data.get("req")
+            rsp = data.get("rsp")
+            disSenInfo_handler.run(url_info, req, rsp)
+        self.disSenInfo_work = Worker(consumer, consumer_count=1)
 
     # # 通用插件
     # def _run_general(self):
@@ -108,12 +108,12 @@ class Controller(object):
                 "rsp": rsp
             }})
             # 推敏感信息扫描
-            # self.logger.info("gen task disSenInfo")
-            # self.disSenInfo_work.put({
-            #     "url_info": url_info,
-            #     "req": req,
-            #     "rsp": rsp
-            # })
+            self.logger.info("gen task sensitive_info")
+            self.disSenInfo_work.put({
+                "url_info": url_info,
+                "req": req,
+                "rsp": rsp
+            })
         #     # 推poc
         #     self.logger.info("gen task poc")
         #     self.poc_work.put({

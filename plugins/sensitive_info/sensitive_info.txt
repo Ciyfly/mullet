@@ -1,0 +1,55 @@
+# idea
+/.idea/workspace.xml
+/.idea/modules.xml
+
+# java
+/WEB-INF/
+/solr/
+/zabbix/
+/resin-admin/
+
+# Spring Boot Actuator
+/configprops
+/actuator/configprops
+/env
+/autoconfig
+/beans
+/configprops
+/dump
+/health
+/info
+/mappings
+/metrics
+/trace
+
+# php
+/index.php.bak
+/.index.php.swp
+
+# go
+/debug/pprof/
+
+# SVN and Git
+/.svn/entries
+/.git/config
+/.git/index
+/.git/HEAD
+
+# other
+/.DS_Store 
+/.vimrc
+/install.txt
+/README
+/readme.md
+
+# bak
+/temp.zip
+/temp.tgz
+/tmp.zip
+/tmp.tgz
+/backup.zip
+/backup.tgz
+/www.zip
+/www.tgz
+1.tgz
+1.zip
