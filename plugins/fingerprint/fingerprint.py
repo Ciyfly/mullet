@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-11 18:16:18
-LastEditors: recar
-LastEditTime: 2022-01-13 15:01:09
+LastEditors: Recar
+LastEditTime: 2022-01-13 22:20:36
 '''
 from lib.log import logger
 from plugins.scan import Base
@@ -97,5 +97,7 @@ class Fingerprint(Base):
                 "payload": fingerprint_result,
                 "url_info": url_info,
                 "req": req,
+                "rsp": rsp,
+                "desc": "指纹识别"
             }
             self.to_result(result)

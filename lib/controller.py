@@ -2,18 +2,21 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 11:05:17
-LastEditors: recar
-LastEditTime: 2022-01-13 16:27:14
+LastEditors: Recar
+LastEditTime: 2022-01-13 23:03:37
 '''
-from lib.work import Worker
+from re import U
+from lib.work import Worker, WorkData
 from plugins.report import Report
 from plugins.fingerprint.fingerprint import Fingerprint
-from plugins.sensitive_info.sensitive_info import DisSenInfo
+from plugins.sensitive_info.sensitive_info import SensitiveInfo
 from lib.log import logger
 from lib.utils import Utils
 from queue import Queue
 import importlib
 import os
+
+
 
 class Controller(object):
     def __init__(self,):
@@ -39,7 +42,7 @@ class Controller(object):
         # report.run()
         # init modul
         self._run_fingerprint()
-        # self._run_sensitive_info()
+        self._run_sensitive_info()
         # self._run_general()
         # self._run_poc()
 
@@ -47,24 +50,22 @@ class Controller(object):
     # 指纹
     def _run_fingerprint(self):
         fingerprint_handler = Fingerprint(self.report_work)
-        def consumer(data):
-            data = data[1].get("data")
-            url_info = data.get("url_info")
-            req = data.get("req")
-            rsp = data.get("rsp")
+        def consumer(work_data):
+            url_info = work_data.url_info
+            req = work_data.req
+            rsp = work_data.rsp
             fingerprint_handler.run(url_info, req, rsp)
-        self.fingerprint_work = Worker(consumer, consumer_count=1, logger=logger)
+        self.fingerprint_work = Worker(consumer, consumer_count=1)
 
     # 敏感信息
     def _run_sensitive_info(self):
-        disSenInfo_handler = DisSenInfo(self.result_queue)
-        def consumer(data):
-            data = data[1].get("data")
-            url_info = data.get("url_info")
-            req = data.get("req")
-            rsp = data.get("rsp")
-            disSenInfo_handler.run(url_info, req, rsp)
-        self.disSenInfo_work = Worker(consumer, consumer_count=1)
+        sensitiveInfo_handler = SensitiveInfo(self.result_queue)
+        def consumer(work_data):
+            url_info = work_data.url_info
+            req = work_data.req
+            rsp = work_data.rsp
+            sensitiveInfo_handler.run(url_info, req, rsp)
+        self.sensitiveInfo_work = Worker(consumer, consumer_count=1)
 
     # # 通用插件
     # def _run_general(self):
@@ -102,18 +103,14 @@ class Controller(object):
             self.domains[domain]=""
             self.logger.info(f"[*] gen task fingerprint: {domain}")
             # 推指纹
-            self.fingerprint_work.put({"data":{
-                "url_info": url_info,
-                "req": req,
-                "rsp": rsp
-            }})
+            work_data = WorkData()
+            work_data.url_info = url_info
+            work_data.req = req
+            work_data.rsp = rsp
+            self.fingerprint_work.put(work_data)
             # 推敏感信息扫描
             self.logger.info("gen task sensitive_info")
-            self.disSenInfo_work.put({
-                "url_info": url_info,
-                "req": req,
-                "rsp": rsp
-            })
+            self.sensitiveInfo_work.put(work_data)
         #     # 推poc
         #     self.logger.info("gen task poc")
         #     self.poc_work.put({

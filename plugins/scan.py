@@ -2,11 +2,12 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 10:07:56
-LastEditors: recar
-LastEditTime: 2022-01-13 18:58:22
+LastEditors: Recar
+LastEditTime: 2022-01-13 23:09:02
 '''
 from lib.log import logger
 from lib.utils import Utils
+from lib.work import ResultInfo
 import urllib.parse
 import traceback
 import requests
@@ -29,11 +30,21 @@ class Base(object):
         return f"{scheme}://{netloc}{path}"
 
     def to_result(self, result):
-        self.report_work.put(result)
+        plugins = result.get("plugins", "")
+        url = result.get("url", "")
+        payload = result.get("payload", "")
+        req = result.get("req", "")
+        rsp = result.get("rsp", "")
+        desc = result.get("desc", "")
+        result_info = ResultInfo(plugins, url, payload, req, rsp, desc)
+        self.report_work.put(result_info)
 
     # 发起请求
     def send_request(self, url,method="GET",headers=None,data=None,timeout=10):
+        if headers is None:
+            headers = dict()
         headers["User-Agent"] = self.utils.get_random_ua()
+        response = None
         if method == "GET":
             try:
                 response = requests.get(url,headers=headers,timeout=timeout)

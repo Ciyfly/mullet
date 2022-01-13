@@ -2,11 +2,11 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 11:56:52
-LastEditors: recar
-LastEditTime: 2022-01-13 15:02:57
+LastEditors: Recar
+LastEditTime: 2022-01-13 23:04:13
 '''
 
-from lib.work import Worker
+from lib.work import Worker, ResultInfo
 from lib.log import logger
 from jinja2 import Environment, FileSystemLoader
 import os
@@ -29,12 +29,11 @@ class Report(object):
         if not os.path.exists(self.output_path):
             os.mkdir(self.output_path)
         # work
-        def consumer(data):
-            result = data[1]
-            self.result_list.append(result)
+        def consumer(result_info):
+            self.result_list.append(result_info)
             report_content = self.report_template.render(items=self.result_list)
             with open(self.output_report_path, "w") as f:
                 f.write(report_content)
-            self.logger.debug("gen report by: {0}".format(result.get("plugins")))
+            self.logger.debug("gen report by: {0}".format(result_info.plugins))
 
-        self.report_work = Worker(consumer, consumer_count=1, logger=logger)
+        self.report_work = Worker(consumer, consumer_count=1)
