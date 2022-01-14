@@ -2,10 +2,10 @@
 # coding=utf-8
 '''
 Date: 2021-03-23 15:51:56
-LastEditors: Recar
-LastEditTime: 2022-01-12 21:41:26
+LastEditors: recar
+LastEditTime: 2022-01-14 15:09:59
 '''
-from lib.utils import Utils
+from lib.http_parser import HTTPParser
 from lib.controller import Controller
 from lib.log import logger
 import sys
@@ -19,9 +19,9 @@ class Filter(object):
 
     @staticmethod
     def parser_response(flow):
-        url_info = Utils.parser_url(flow)
-        req = Utils.parser_req(flow)
-        rsp = Utils.parser_rsp(flow)
+        url_info = HTTPParser.flow_to_urlinfo(flow)
+        req = HTTPParser.flow_to_req(flow)
+        rsp = HTTPParser.flow_to_rsp(flow)
         # check
         if not url_info:
             return

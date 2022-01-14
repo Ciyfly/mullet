@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-11 18:16:18
-LastEditors: Recar
-LastEditTime: 2022-01-13 23:12:18
+LastEditors: recar
+LastEditTime: 2022-01-14 15:14:26
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData
@@ -22,7 +22,9 @@ class SensitiveInfo(Base):
             test_response_len = response.headers.get("content-length")
             if test_response_len is None:
                 test_response_len = 0
-            if test_response_len!= self.response_404_len and abs(int(test_response_len)-int(self.response_404_len))>50:
+            if test_response_len!= self.response_404_len and \
+                abs(int(test_response_len)-int(self.response_404_len))>50 and \
+                response.status_code==200:
                 self.logger.info(f"[+] SensitiveInfo: {url}")
                 result = {
                     "plugins": self.plugins,

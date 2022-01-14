@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-11 18:12:13
-LastEditors: Recar
-LastEditTime: 2022-01-12 21:25:35
+LastEditors: recar
+LastEditTime: 2022-01-14 14:58:13
 '''
 from mitmproxy.options import Options
 from mitmproxy.proxy.config import ProxyConfig
@@ -40,10 +40,10 @@ class ProxyMaster(DumpMaster):
         except KeyboardInterrupt:
             self.shutdown()
 
-def proxy_run(listen_host="0.0.0.0", listen_port=8686):
-    logger.info(f"Proxy {listen_host}:{listen_port}")
+def proxy_run(addr="0.0.0.0", port=8686):
+    logger.info(f"Proxy {addr}:{port}")
     try:
-        options = Options(listen_host=listen_host, listen_port=listen_port, http2=True)
+        options = Options(listen_host=addr, listen_port=port, http2=True)
         config = ProxyConfig(options)
         master = ProxyMaster(options, with_termlog=False, with_dumper=False)
         master.server = ProxyServer(config)
