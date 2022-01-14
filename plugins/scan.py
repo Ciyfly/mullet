@@ -2,12 +2,13 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 10:07:56
-LastEditors: Recar
-LastEditTime: 2022-01-13 23:09:02
+LastEditors: recar
+LastEditTime: 2022-01-14 17:08:47
 '''
 from lib.log import logger
 from lib.utils import Utils
 from lib.work import ResultInfo
+from lib.data import taskqueue
 import urllib.parse
 import traceback
 import requests
@@ -20,7 +21,8 @@ class Base(object):
         self.logger = logger
         self.report_work = report_work
         self.utils = Utils
-
+        self.task_queue_map = taskqueue.task_queue_map
+        
     def url_completion(self, url, path):
         if "http" in path:
             return path
@@ -49,15 +51,15 @@ class Base(object):
             try:
                 response = requests.get(url,headers=headers,timeout=timeout)
             except Exception:
-                self.logger.error(traceback.format_exc())
+                pass
         elif method == "POST":
             try:
                 response = requests.post(url,headers=headers, data=data,timeout=timeout)
             except Exception:
-                self.logger.error(traceback.format_exc())
+                pass
         elif method == "HEAD":
             try:
                 response = requests.head(url,headers=headers,timeout=timeout)
             except Exception:
-                self.logger.error(traceback.format_exc())            
+                pass
         return response

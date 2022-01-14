@@ -3,10 +3,11 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-01-14 15:10:53
+LastEditTime: 2022-01-14 17:07:54
 '''
 from re import U
 from lib.work import Worker, WorkData
+from lib.data import taskqueue
 from plugins.report import Report
 from plugins.fingerprint.fingerprint import Fingerprint
 from plugins.sensitive_info.sensitive_info import SensitiveInfo
@@ -14,6 +15,9 @@ from lib.log import logger
 from lib.utils import Utils
 from queue import Queue
 import importlib
+import threading
+import time
+import sys
 import os
 
 
@@ -35,7 +39,7 @@ class Controller(object):
         sensitive_info_list = list()
         general_list = list()
         poc_list = list()
-        
+        self.task_queue_map = taskqueue.task_queue_map
         # 启动报告模块
         self.report = Report()
         self.report_work = self.report.report_work
@@ -45,6 +49,11 @@ class Controller(object):
         self._run_sensitive_info()
         # self._run_general()
         # self._run_poc()
+        # print task queue
+        # t = threading.Thread(target=self.print_task_queue)
+        # t.setDaemon(True)
+        # t.start()
+        
 
 
     # 指纹
@@ -56,6 +65,7 @@ class Controller(object):
             rsp = work_data.rsp
             fingerprint_handler.run(url_info, req, rsp)
         self.fingerprint_work = Worker(consumer, consumer_count=1)
+        self.task_queue_map["fingerprint"] = self.fingerprint_work.work_queue
 
     # 敏感信息
     def _run_sensitive_info(self):
@@ -66,6 +76,8 @@ class Controller(object):
             rsp = work_data.rsp
             sensitiveInfo_handler.run(url_info, req, rsp)
         self.sensitiveInfo_work = Worker(consumer, consumer_count=1)
+        self.task_queue_map["sensitiveInfo"] = self.sensitiveInfo_work.work_queue
+
 
     # # 通用插件
     # def _run_general(self):
@@ -94,6 +106,14 @@ class Controller(object):
     #         metaclass.Scan().run(url_info, req, rsp)
     #     self.poc_work = Worker(consumer, consumer_count=10)
 
+    def print_task_queue(self):
+        while True:
+            task_info = ""
+            for plugins, queue in self.task_queue_map.items():
+                task_info +="|{0}:{1}|".format(plugins, queue.qsize())
+            sys.stdout.write("\r{0}".format(task_info))
+            sys.stdout.flush()
+            time.sleep(0.5)
 
     # 入口分发任务
     def run(self, url_info, req, rsp):
@@ -110,6 +130,7 @@ class Controller(object):
             self.fingerprint_work.put(work_data)
             # 推敏感信息扫描
             self.logger.info("gen task sensitive_info")
+            self.logger.info("sensitive_info queue size: {0}".format(self.sensitiveInfo_work.work_queue.qsize()))
             self.sensitiveInfo_work.put(work_data)
         #     # 推poc
         #     self.logger.info("gen task poc")

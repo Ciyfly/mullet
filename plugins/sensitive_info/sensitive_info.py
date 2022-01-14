@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-01-14 15:14:26
+LastEditTime: 2022-01-14 17:17:59
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData
@@ -19,6 +19,8 @@ class SensitiveInfo(Base):
         def consumer(work_data):
             url = work_data.url
             response = self.send_request(url, method="HEAD")
+            if response is None:
+                return
             test_response_len = response.headers.get("content-length")
             if test_response_len is None:
                 test_response_len = 0
@@ -36,12 +38,16 @@ class SensitiveInfo(Base):
                 }
                 self.to_result(result)
         self.task_work = Worker(consumer, consumer_count=1)
+        self.task_queue_map["SensitiveInfo task"] = self.task_work.work_queue
 
     def _get_404_header(self, url_info):
         url = url_info.get('url')
         path = self.utils.gen_random_str()
         test_url = f"{url}{path}"
         response = self.send_request(test_url, method="HEAD")
+        if response is None:
+            self.response_404_len = 0
+            return
         self.response_404_len = response.headers.get("content-length")
         if self.response_404_len is None:
             self.response_404_len = 0
@@ -58,6 +64,8 @@ class SensitiveInfo(Base):
                     self.seninfo_list.append(line.strip())
 
     def run(self, url_info, req, rsp):
+        if url_info.get("type") != "dynamic":
+            return
         self._get_404_header(url_info)
         url = url_info.get('url')
         if url[-1]=="/":
