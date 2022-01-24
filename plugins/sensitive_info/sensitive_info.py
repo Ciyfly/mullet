@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-01-14 17:17:59
+LastEditTime: 2022-01-24 12:08:52
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData
@@ -33,8 +33,6 @@ class SensitiveInfo(Base):
                     "url": url,
                     "payload": url,
                     "desc": "敏感信息泄露",
-                    "req":"",
-                    "rsp": ""
                 }
                 self.to_result(result)
         self.task_work = Worker(consumer, consumer_count=1)

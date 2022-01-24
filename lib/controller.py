@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-01-14 17:07:54
+LastEditTime: 2022-01-24 12:10:58
 '''
 from re import U
 from lib.work import Worker, WorkData
@@ -26,7 +26,6 @@ class Controller(object):
     def __init__(self,):
         self.domains = dict()
         self.urls = dict()
-        self.result_queue = Queue()
         self.logger = logger
         base_path = os.path.dirname(os.path.abspath(__file__))
         plugins_dir = os.path.join(base_path, "../", 'plugins')
@@ -69,7 +68,7 @@ class Controller(object):
 
     # 敏感信息
     def _run_sensitive_info(self):
-        sensitiveInfo_handler = SensitiveInfo(self.result_queue)
+        sensitiveInfo_handler = SensitiveInfo(self.report_work)
         def consumer(work_data):
             url_info = work_data.url_info
             req = work_data.req
