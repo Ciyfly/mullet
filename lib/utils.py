@@ -4,7 +4,7 @@
 Author: Recar
 Date: 2021-06-28 22:40:10
 LastEditors: recar
-LastEditTime: 2022-01-14 14:43:49
+LastEditTime: 2022-01-26 16:50:26
 '''
 from lib.log import logger
 from cowpy.cow import milk_random_cow
@@ -13,10 +13,33 @@ import platform
 import string
 import hashlib
 import random
+import copy
 import uuid
 
 
 class Utils(object):
+
+    @staticmethod
+    def object_copy(instance, init_args=None):
+        if init_args:
+            new_obj = instance.__class__(**init_args)
+        else:
+            new_obj = instance.__class__()
+        if hasattr(instance, '__dict__'):
+            for k in instance.__dict__ :
+                try:
+                    attr_copy = copy.deepcopy(getattr(instance, k))
+                except Exception as e:
+                    attr_copy = Utils.object_copy(getattr(instance, k))
+                setattr(new_obj, k, attr_copy)
+
+            new_attrs = list(new_obj.__dict__.keys())
+            for k in new_attrs:
+                if not hasattr(instance, k):
+                    delattr(new_obj, k)
+            return new_obj
+        else:
+            return instance
 
     @staticmethod
     def get_md5(string):

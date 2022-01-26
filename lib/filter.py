@@ -3,14 +3,13 @@
 '''
 Date: 2021-03-23 15:51:56
 LastEditors: recar
-LastEditTime: 2022-01-14 15:09:59
+LastEditTime: 2022-01-26 11:24:28
 '''
 from lib.http_parser import HTTPParser
-from lib.controller import Controller
+from lib.data import controller
 from lib.log import logger
 import sys
 sys.path.append('../')
-controller = Controller()
 
 class Filter(object):
     @staticmethod

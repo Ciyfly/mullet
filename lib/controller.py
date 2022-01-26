@@ -3,20 +3,18 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-01-24 12:10:58
+LastEditTime: 2022-01-26 17:07:02
 '''
-from re import U
+from re import I, U
 from lib.work import Worker, WorkData
-from lib.data import taskqueue
 from plugins.report import Report
 from plugins.fingerprint.fingerprint import Fingerprint
 from plugins.sensitive_info.sensitive_info import SensitiveInfo
 from lib.log import logger
 from lib.utils import Utils
-from queue import Queue
 import importlib
-import threading
 import time
+import copy
 import sys
 import os
 
@@ -27,33 +25,41 @@ class Controller(object):
         self.domains = dict()
         self.urls = dict()
         self.logger = logger
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        plugins_dir = os.path.join(base_path, "../", 'plugins')
-        fingerprint_dir = os.path.join(plugins_dir, 'fingerprint')
-        sensitive_info_dir = os.path.join(plugins_dir, 'sensitive_info')
-        general_dir = os.path.join(plugins_dir, 'general')
-        poc_dir = os.path.join(plugins_dir, 'poc')
-        # 注册
-        fingerprint_list = list()
-        sensitive_info_list = list()
-        general_list = list()
-        poc_list = list()
-        self.task_queue_map = taskqueue.task_queue_map
+        self.base_path = os.path.dirname(os.path.abspath(__file__))
+        self.plugins_dir = os.path.join(self.base_path, "../", 'plugins')
+        self.general_plugins_dir = os.path.join(self.plugins_dir, "general")
+
+        # 类注册到sys pth
+        # 通用
+        sys.path.append(self.general_plugins_dir)
+        # poc
+
+    def init(self):
+        self.logger.info("Controller Init !!!")
         # 启动报告模块
         self.report = Report()
         self.report_work = self.report.report_work
-        # report.run()
-        # init modul
         self._run_fingerprint()
         self._run_sensitive_info()
-        # self._run_general()
-        # self._run_poc()
-        # print task queue
-        # t = threading.Thread(target=self.print_task_queue)
-        # t.setDaemon(True)
-        # t.start()
-        
+        # 加载通用检测模块
+        self._load_general_plugins()
+        self._run_general()
 
+    def _load_general_plugins(self):
+        '''
+        加载通用url级的检查插件
+        '''
+        self.logger.info("load general plugins")
+        self.general_plugins_dict = dict()
+        for _, _, files in os.walk(self.general_plugins_dir):
+            for filename in files:
+                plugins_name = filename.split(".")[0]
+                if plugins_name not in [self.general_plugins_dict.keys()]:
+                    self.logger.info("plugins: {0}".format(plugins_name))
+                    metaclass = importlib.import_module(plugins_name)
+                    self.general_plugins_dict[plugins_name] = metaclass.Scan()
+            break
+        self.logger.info("general plugins count: {0}".format(len(self.general_plugins_dict.keys())))
 
     # 指纹
     def _run_fingerprint(self):
@@ -64,7 +70,7 @@ class Controller(object):
             rsp = work_data.rsp
             fingerprint_handler.run(url_info, req, rsp)
         self.fingerprint_work = Worker(consumer, consumer_count=1)
-        self.task_queue_map["fingerprint"] = self.fingerprint_work.work_queue
+        # self.task_queue_map["fingerprint"] = self.fingerprint_work.work_queue
 
     # 敏感信息
     def _run_sensitive_info(self):
@@ -75,21 +81,22 @@ class Controller(object):
             rsp = work_data.rsp
             sensitiveInfo_handler.run(url_info, req, rsp)
         self.sensitiveInfo_work = Worker(consumer, consumer_count=1)
-        self.task_queue_map["sensitiveInfo"] = self.sensitiveInfo_work.work_queue
+        # self.task_queue_map["sensitiveInfo"] = self.sensitiveInfo_work.work_queue
 
 
-    # # 通用插件
-    # def _run_general(self):
-    #     def consumer(data):
-    #         data = data[1].get("data")
-    #         plugins_name = data.get("plugins")
-    #         req = data.get("req")
-    #         rsp = data.get("rsp")
-    #         url_info = data.get("url_info")
-    #         # 动态实例插件名称并传递req和rsp来执行
-    #         metaclass = importlib.import_module(plugins_name)
-    #         metaclass.Scan().run(url_info, req, rsp)
-    #     self.general_work = Worker(consumer, consumer_count=10)
+    # 通用插件
+    def _run_general(self):
+        def consumer(work_data):
+            url_info = work_data.url_info
+            req = work_data.req
+            rsp = work_data.rsp
+            plugin_name = work_data.plugin_name
+            self.logger.info("[*] gen task plugin: {0}".format(plugin_name))
+            # 动态实例插件名称并传递req和rsp来执行
+            # scan_plugins = Utils.object_copy(self.general_plugins_dict.get(plugin_name))
+            scan_plugins = copy.copy(self.general_plugins_dict.get(plugin_name))
+            scan_plugins.run(url_info, req, rsp)
+        self.general_work = Worker(consumer, consumer_count=1)
 
     # # poc插件
     # # 先直接poc全发一下
@@ -131,20 +138,22 @@ class Controller(object):
             self.logger.info("gen task sensitive_info")
             self.logger.info("sensitive_info queue size: {0}".format(self.sensitiveInfo_work.work_queue.qsize()))
             self.sensitiveInfo_work.put(work_data)
-        #     # 推poc
-        #     self.logger.info("gen task poc")
-        #     self.poc_work.put({
-        #         "url_info": url_info,
-        #         "req": req,
-        #         "rsp": rsp
-        #     })
-        #     self.domains.add(domain)
+
+            # 推poc
+            #     self.logger.info("gen task poc")
+            #     self.poc_work.put({
+            #         "url_info": url_info,
+            #         "req": req,
+            #         "rsp": rsp
+            #     })
+            #     self.domains.add(domain)
         if gener_url not in self.urls:
             # 推通用插件
             self.logger.debug("[*] gen task general")
-            self.urls[gener_url]=""
-            # self.general_work.put({
-            #     "url_info": url_info,
-            #     "req": req,
-            #     "rsp": rsp
-            # })
+            for plugin_name in self.general_plugins_dict.keys():
+                work_data = WorkData()
+                work_data.url_info = url_info
+                work_data.req = req
+                work_data.rsp = rsp
+                work_data.plugin_name = plugin_name           
+                self.general_work.put(work_data)

@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-10 10:50:05
 LastEditors: recar
-LastEditTime: 2022-01-24 12:01:07
+LastEditTime: 2022-01-26 14:20:12
 '''
 
 from queue import PriorityQueue, Queue
@@ -141,11 +141,11 @@ class WorkData(object):
     传递到queue的标准数据
     '''
     @property
-    def plugins(self):
-        return self._plugins
-    @plugins.setter
-    def plugins(self, plugins):
-        self._plugins = plugins
+    def plugin_name(self):
+        return self._plugin_name
+    @plugin_name.setter
+    def plugin_name(self, plugin_name):
+        self._plugin_name = plugin_name
 
     @property
     def url_info(self):
@@ -184,7 +184,7 @@ class ResultInfo(object):
     标准的结果数据
     '''
     def __init__(self,plugins, url, payload, req, rsp, desc):
-        self._plugins = plugins
+        self._plugin_name = plugins
         self._url = url
         self._payload = payload
         self._req = req
@@ -193,10 +193,10 @@ class ResultInfo(object):
 
     @property
     def plugins(self):
-        return self._plugins
+        return self._plugin_name
     @plugins.setter
     def plugins(self, plugins):
-        self._plugins = plugins
+        self._plugin_name = plugins
 
     @property
     def url(self):

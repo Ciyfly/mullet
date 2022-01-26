@@ -3,11 +3,11 @@
 '''
 Date: 2021-06-25 17:42:42
 LastEditors: recar
-LastEditTime: 2022-01-12 10:15:42
+LastEditTime: 2022-01-26 11:54:45
 '''
 import js2py
 import re
-from plugins.general.scan import Base
+from plugins.scan import Base
 
 
 class Scan(Base):
@@ -49,7 +49,9 @@ class Scan(Base):
                 value = data["value"]["value"]
                 all_maps[key] = value
 
-    def run(self, url, rsp_text):
+    def run(self, url_info, req, rsp):
+        url = url_info.get("url","")
+        rsp_text = rsp.get('text',"")
         all_maps = dict()
         if not self.has_callback(url):
             return False, []

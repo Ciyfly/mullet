@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:12:13
 LastEditors: recar
-LastEditTime: 2022-01-14 14:58:13
+LastEditTime: 2022-01-26 11:23:09
 '''
 from mitmproxy.options import Options
 from mitmproxy.proxy.config import ProxyConfig
@@ -12,7 +12,6 @@ from mitmproxy.tools.dump import DumpMaster
 from lib.filter import Filter
 from lib.log import logger
 import traceback
-
 
 
 class Addon(object):

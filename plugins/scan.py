@@ -3,12 +3,11 @@
 '''
 Date: 2022-01-12 10:07:56
 LastEditors: recar
-LastEditTime: 2022-01-24 12:11:11
+LastEditTime: 2022-01-26 11:21:08
 '''
 from lib.log import logger
 from lib.utils import Utils
 from lib.work import ResultInfo
-from lib.data import taskqueue
 import urllib.parse
 import traceback
 import requests
@@ -21,7 +20,6 @@ class Base(object):
         self.logger = logger
         self.report_work = report_work
         self.utils = Utils
-        self.task_queue_map = taskqueue.task_queue_map
         
     def url_completion(self, url, path):
         if "http" in path:

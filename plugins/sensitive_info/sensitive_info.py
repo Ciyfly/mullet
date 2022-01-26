@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-01-24 12:08:52
+LastEditTime: 2022-01-26 11:26:26
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData
@@ -36,7 +36,7 @@ class SensitiveInfo(Base):
                 }
                 self.to_result(result)
         self.task_work = Worker(consumer, consumer_count=1)
-        self.task_queue_map["SensitiveInfo task"] = self.task_work.work_queue
+        # self.task_queue_map["SensitiveInfo task"] = self.task_work.work_queue
 
     def _get_404_header(self, url_info):
         url = url_info.get('url')

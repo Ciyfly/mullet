@@ -3,15 +3,16 @@
 '''
 Date: 2022-01-12 16:28:33
 LastEditors: recar
-LastEditTime: 2022-01-14 15:06:36
+LastEditTime: 2022-01-26 11:24:19
 '''
-from lib.controller import Controller
+from lib.data import controller
 from lib.http_parser import HTTPParser
 from lib.proxy import proxy_run
 from lib.log import logger
 import logging
 import click
 import os
+
 
 @click.command()
 @click.option('-s', 'server_addr', type=str, default="0.0.0.0:8686", help='listen server addr defalut 0.0.0.0:8686')
@@ -25,8 +26,8 @@ def cli(server_addr, verbose,url,url_file, debug):
     if debug:
         logger.setLevel(logging.DEBUG)
     # scan
-    conntroller = Controller()
     if url or url_file:
+        controller.init()
         # 主动扫描推任务到controller.arp
         urls = list()
         if url_file:
@@ -42,9 +43,10 @@ def cli(server_addr, verbose,url,url_file, debug):
         for url in urls:
             rsp, req = HTTPParser.get_res_req_by_url(url)
             url_info = HTTPParser.reqs_to_urlinfo(req)
-            conntroller.run(url_info, req, rsp)
+            controller.run(url_info, req, rsp)
     else:
         # 被动扫描
+        controller.init()
         addr, port = server_addr.split(":")
         proxy_run(addr, int(port))
 
