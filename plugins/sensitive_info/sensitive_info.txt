@@ -1,17 +1,18 @@
+## url 12空格{status=200}    {tag="tag"}    {type="content-type}
 # idea
-/.idea/workspace.xml
-/.idea/modules.xml
+/.idea/workspace.xml            {tag="<?xml"}    {status=200}     {type="xml"}           
+/.idea/modules.xml           {tag="<?xml"}    {status=200}     {type="xml"}
 
 # java
-/WEB-INF/
-/solr/
-/zabbix/
-/resin-admin/
+/WEB-INF/web.xml            {tag="<?xml"}    {status=200}     {type="xml"}
+/solr/            {{tag="<title>Solr Admin</title>"} {status=200} {type="html"}
+/zabbix/            {{tag="<title>Zabbix</title>"}
+/resin-admin/            {{status=200}    {tag="<title>Resin Admin Login for"}
 
 # Spring Boot Actuator
-/configprops
-/actuator/configprops
-/env
+/configprops            {{status=200}     {tag="serverProperties"}
+/actuator/configprops            {{status=200}     {tag="serverProperties"}
+/env            {{status=200}     {tag="systemProperties"}
 /autoconfig
 /beans
 /configprops
@@ -23,33 +24,33 @@
 /trace
 
 # php
-/index.php.bak
-/.index.php.swp
+/index.php.bak            {status=206}      {type="application/"}           {tag="<?php"}
+/.index.php.swp            {status=206}      {type="application/"}           {tag="<?php"}
 
 # go
-/debug/pprof/
+/debug/pprof/            {status=200}    {tag="goroutine"}
 
 # SVN and Git
-/.svn/entries
-/.git/config
-/.git/index
-/.git/HEAD
+/.svn/entries            {status=200}    {tag="-props"}
+/.git/config            {status=200}    {tag="[core]"}
+/.git/index            {status=200}    {tag="DIRC"}
+/.git/HEAD            {status=200}    {tag="refs/heads/"}
 
 # other
-/.DS_Store 
-/.vimrc
-/install.txt
-/README
-/readme.md
+/.DS_Store            {status=206}     {type_no="html"}
+/.vimrc            {status=206}     {type_no="html"}
+/install.txt            {status=200}      {type_no="html"}
+/README            {status=200}      {type_no="html"}
+/readme.md            {status=200}      {type_no="html"}
 
 # bak
-/temp.zip
-/temp.tgz
-/tmp.zip
-/tmp.tgz
-/backup.zip
-/backup.tgz
-/www.zip
-/www.tgz
-/1.tgz
-/1.zip
+/temp.zip            {status=206}    {type="application/"}
+/temp.tgz            {status=206}    {type="application/"}
+/tmp.zip            {status=206}    {type="application/"}
+/tmp.tgz            {status=206}    {type="application/"}
+/backup.zip            {status=206}    {type="application/"}
+/backup.tgz            {status=206}    {type="application/"}
+/www.zip            {status=206}    {type="application/"}
+/www.tgz            {status=206}    {type="application/"}
+/1.tgz            {status=206}    {type="application/"}
+/1.zip            {status=206}    {type="application/"}

@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-01-26 17:07:02
+LastEditTime: 2022-01-26 17:49:17
 '''
 from re import I, U
 from lib.work import Worker, WorkData
@@ -147,13 +147,13 @@ class Controller(object):
             #         "rsp": rsp
             #     })
             #     self.domains.add(domain)
-        if gener_url not in self.urls:
-            # 推通用插件
-            self.logger.debug("[*] gen task general")
-            for plugin_name in self.general_plugins_dict.keys():
-                work_data = WorkData()
-                work_data.url_info = url_info
-                work_data.req = req
-                work_data.rsp = rsp
-                work_data.plugin_name = plugin_name           
-                self.general_work.put(work_data)
+        # if gener_url not in self.urls:
+        #     # 推通用插件
+        #     self.logger.debug("[*] gen task general")
+        #     for plugin_name in self.general_plugins_dict.keys():
+        #         work_data = WorkData()
+        #         work_data.url_info = url_info
+        #         work_data.req = req
+        #         work_data.rsp = rsp
+        #         work_data.plugin_name = plugin_name           
+        #         self.general_work.put(work_data)
