@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-02-10 11:54:24
+LastEditTime: 2022-02-10 14:17:31
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData
@@ -15,6 +15,7 @@ class SensitiveInfo(Base):
         super(SensitiveInfo, self).__init__(report_work)
         self.plugins = "sensitive_info"
         self.base_path = os.path.dirname(os.path.abspath(__file__))
+        self.seninfo_dict = dict()
         self._load_dict()
         def consumer(work_data):
             url = work_data.url
@@ -22,15 +23,15 @@ class SensitiveInfo(Base):
             if response is None:
                 return
             condition_dict = work_data.condition
-            for tag in [condition_dict.keys()]:
+            for tag in condition_dict.keys():
                 if tag == "status":
-                    if str(response.status_code)!=str(condition_dict["tag"]):
+                    if str(response.status_code)!=str(condition_dict[tag]):
                         return False
                 elif tag == "type":
-                    if str(response.headers["content-type"])!=str(condition_dict["tag"]):
+                    if str(response.headers["content-type"])!=str(condition_dict[tag]):
                         return False
                 elif tag == "match":
-                    if str(condition_dict["tag"]) not in response.text:
+                    if str(condition_dict[tag]) not in response.text:
                         return False
                 self.logger.info(f"[+] SensitiveInfo: {url}")
                 result = {
@@ -43,7 +44,6 @@ class SensitiveInfo(Base):
         self.task_work = Worker(consumer, consumer_count=1)
 
     def _load_dict(self):
-        self.seninfo_dict = dict()
         dict_path = os.path.join(self.base_path,"sensitive_info.txt")
         with open(dict_path, "r") as f:
             for line in f:
@@ -69,13 +69,14 @@ class SensitiveInfo(Base):
     def run(self, url_info, req, rsp):
         if url_info.get("type") != "dynamic":
             return
-        url = url_info.get('url')
+        url = url_info.get('host')
         if url[-1]=="/":
             url = url[:-1]
-        for path in [self.seninfo_dict.keys()]:
+        for path in self.seninfo_dict.keys():
             test_url = f"{url}{path}"
             work_data = WorkData()
             work_data.url = test_url
+            self.logger.debug("senitive_info test url: {0}".format(test_url))
             work_data.condition = self.seninfo_dict[path]
             self.task_work.put(work_data)
 
