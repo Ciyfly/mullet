@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2021-06-25 17:42:42
-LastEditors: recar
-LastEditTime: 2022-01-26 11:54:45
+LastEditors: Recar
+LastEditTime: 2022-02-10 21:07:43
 '''
 import js2py
 import re
@@ -11,8 +11,8 @@ from plugins.scan import Base
 
 
 class Scan(Base):
-    def __init__(self):
-        super(Base, self).__init__()
+    def __init__(self, report_work):
+        super().__init__(report_work)
         self.plugins_name = "js_jsonp"
         self.callbak_pattern = re.compile('(?m)(?i)(callback)|(jsonp)|(^cb$)|(function)')
         self.seninfo_pattern = re.compile(
@@ -79,6 +79,11 @@ class Scan(Base):
         sen_info = self.has_sen_info(all_maps)
         self.logger.debug("sen_info: {0}".format(sen_info))
         if sen_info:
-            return True, sen_info
-        else:
-            return False, []
+            self.logger.info("[+] jsonp ")
+            result = {
+                "plugins": self.plugins_name,
+                "url": url,
+                "payload": sen_info,
+                "desc": "疑似jsonp漏洞"
+            }
+            self.to_result(result)

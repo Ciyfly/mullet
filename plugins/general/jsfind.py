@@ -2,15 +2,15 @@
 # coding=utf-8
 '''
 Date: 2021-06-25 17:36:26
-LastEditors: recar
-LastEditTime: 2022-01-26 16:39:54
+LastEditors: Recar
+LastEditTime: 2022-02-10 21:26:11
 '''
 from plugins.scan import Base
 import re
 
 class Scan(Base):
-    def __init__(self):
-        super(Base, self).__init__()
+    def __init__(self, report_work):
+        super().__init__(report_work)
         self.plugins_name = "js_find"
         self.pattern_raw = r"""
         (?:"|')                               # Start newline delimiter
@@ -67,9 +67,15 @@ class Scan(Base):
         url_type = url_info.get('type')
         url_url = url_info.get('url')
         rsp_text = rsp.get('text', "")
+        self.logger.debug("jsfind: {0}".format(url_url))
         if url_type != 'js' or url_type is None:
             return False, []
         find_list = self.find(url_url, rsp_text)
         if find_list:
-            return True, find_list
-        return False, []
+            result = {
+                "plugins": self.plugins_name,
+                "url": url_url,
+                "payload": find_list,
+                "desc": "敏感js"
+            }
+            self.to_result(result)

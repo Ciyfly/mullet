@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 10:07:56
-LastEditors: recar
-LastEditTime: 2022-01-26 11:21:08
+LastEditors: Recar
+LastEditTime: 2022-02-10 21:26:59
 '''
 from lib.log import logger
 from lib.utils import Utils
@@ -11,6 +11,7 @@ from lib.work import ResultInfo
 import urllib.parse
 import traceback
 import requests
+import json
 import os
 
 
@@ -29,10 +30,17 @@ class Base(object):
         netloc = parse_url.netloc
         return f"{scheme}://{netloc}{path}"
 
+    def print_result(self, result):
+        self.logger.info(json.dumps(result, sort_keys=True, indent=4, separators=(',', ':'), ensure_ascii=False))
+
     def to_result(self, result):
+        self.print_result(result)
         plugins = result.get("plugins", "")
         url = result.get("url", "")
         payload = result.get("payload", "")
+        # 对payload如果是list的结果就很多换行处理
+        if type(payload)==list:
+            payload = "</br>".join(payload)
         req = result.get("req", "")
         rsp = result.get("rsp", "")
         desc = result.get("desc", "")
