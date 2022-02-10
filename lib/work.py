@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-10 10:50:05
 LastEditors: recar
-LastEditTime: 2022-01-26 14:20:12
+LastEditTime: 2022-02-10 11:44:18
 '''
 
 from queue import PriorityQueue, Queue
@@ -178,6 +178,14 @@ class WorkData(object):
     @rsp.setter
     def rsp(self, rsp):
         self._rsp = rsp
+
+    @property
+    def condition(self):
+        return self._condition
+
+    @condition.setter
+    def condition(self, condition):
+        self._condition = condition
 
 class ResultInfo(object):
     '''
