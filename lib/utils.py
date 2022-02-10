@@ -3,8 +3,8 @@
 '''
 Author: Recar
 Date: 2021-06-28 22:40:10
-LastEditors: recar
-LastEditTime: 2022-01-26 16:50:26
+LastEditors: Recar
+LastEditTime: 2022-02-10 21:55:07
 '''
 from lib.log import logger
 from cowpy.cow import milk_random_cow
@@ -15,6 +15,7 @@ import hashlib
 import random
 import copy
 import uuid
+import time
 
 
 class Utils(object):
@@ -138,6 +139,10 @@ class Utils(object):
     @staticmethod
     def gen_random_num(nums):
         return int(Utils.gen_random_str(length=int(nums), chars=string.digits))
+
+    @staticmethod
+    def gen_current_time_str():
+        return time.strftime('%Y_%m_%d_%H_%M',time.localtime(time.time()))
 
     @staticmethod
     def get_random_ua():

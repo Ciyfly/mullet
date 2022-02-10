@@ -2,12 +2,13 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 11:56:52
-LastEditors: recar
-LastEditTime: 2022-01-24 12:11:19
+LastEditors: Recar
+LastEditTime: 2022-02-10 21:56:10
 '''
 
 from lib.work import Worker, ResultInfo
 from lib.log import logger
+from lib.utils import Utils
 from jinja2 import Environment, FileSystemLoader
 import os
 
@@ -17,7 +18,7 @@ class Report(object):
         self.logger = logger
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.output_path = os.path.join(self.base_path,"../", "output")
-        self.output_report_path = os.path.join(self.output_path, "report.html")
+        self.output_report_path = os.path.join(self.output_path, "{0}_report.html".format(Utils.gen_current_time_str()))
         report_template_dir = os.path.join(self.base_path,"../", "config")
         # init result
         self.result_list = list()
