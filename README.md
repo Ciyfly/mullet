@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-01-11 18:08:25
  * @LastEditors: Recar
- * @LastEditTime: 2022-01-12 22:07:35
+ * @LastEditTime: 2022-02-10 22:03:06
 -->
 # mullet
 被动代理扫描器 梭鱼
@@ -24,3 +24,10 @@ poc通用模块
 
 然后代理访问开始后或者后续流量有url的就交给url识别  
 安装证书 代理开启后访问 http://mitm.it/  
+
+通用检测插件还有哪些要做的 列个计划去做  
+sql注入    
+xss检测    
+命令注入  
+
+可以参考 https://github.com/chaitin/xray  

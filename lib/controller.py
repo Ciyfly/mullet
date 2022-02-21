@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-02-21 16:45:51
+LastEditTime: 2022-02-21 17:01:23
 '''
 from lib.work import Worker, WorkData
 from plugins.report import Report
@@ -38,7 +38,7 @@ class Controller(object):
         # poc
 
     def init(self):
-        self.logger.info("Controller Init !!!")
+        self.logger.info("Controller Init ")
         # 启动报告模块
         self.report = Report()
         self.report_work = self.report.report_work
@@ -55,7 +55,7 @@ class Controller(object):
         '''
         加载通用url级的检查插件
         '''
-        self.logger.info("load general plugins")
+        self.logger.info("load general plugins please wait a moment ~")
         self.general_plugins_dict = dict()
         for _, _, files in os.walk(self.general_plugins_dir):
             for filename in files:
@@ -63,7 +63,7 @@ class Controller(object):
                 if plugins_name not in [self.general_plugins_dict.keys()]:
                     self.logger.info("plugins: {0}".format(plugins_name))
                     metaclass = importlib.import_module(plugins_name)
-                    self.general_plugins_dict[plugins_name] = metaclass.Scan()
+                    self.general_plugins_dict[plugins_name] = metaclass.Scan(self.report_work)
             break
         self.logger.info("general plugins count: {0}".format(len(self.general_plugins_dict.keys())))
 
@@ -97,7 +97,7 @@ class Controller(object):
             req = work_data.req
             rsp = work_data.rsp
             plugin_name = work_data.plugin_name
-            self.logger.info("[*] gen task plugin: {0}".format(plugin_name))
+            # self.logger.info("[*] gen task plugin: {0}".format(plugin_name))
             # 动态实例插件名称并传递req和rsp来执行
             # scan_plugins = Utils.object_copy(self.general_plugins_dict.get(plugin_name))
             scan_plugins = copy.copy(self.general_plugins_dict.get(plugin_name))
@@ -148,7 +148,7 @@ class Controller(object):
         gener_url = url_info.get("gener_url")
         if domain not in self.domains:
             self.domains[domain]=""
-            self.logger.info(f"[*] gen task fingerprint: {domain}")
+            self.logger.debug(f"[*] gen task fingerprint: {domain}")
             # 推指纹
             work_data = WorkData()
             work_data.url_info = url_info
@@ -156,8 +156,7 @@ class Controller(object):
             work_data.rsp = rsp
             self.fingerprint_work.put(work_data)
             # 推敏感信息扫描
-            self.logger.info("gen task sensitive_info")
-            self.logger.info("sensitive_info queue size: {0}".format(self.sensitiveInfo_work.work_queue.qsize()))
+            self.logger.debug("gen task sensitive_info")
             self.sensitiveInfo_work.put(work_data)
 
             # 推poc
@@ -168,13 +167,13 @@ class Controller(object):
             #         "rsp": rsp
             #     })
             #     self.domains.add(domain)
-        # if gener_url not in self.urls:
-        #     # 推通用插件
-        #     self.logger.debug("[*] gen task general")
-        #     for plugin_name in self.general_plugins_dict.keys():
-        #         work_data = WorkData()
-        #         work_data.url_info = url_info
-        #         work_data.req = req
-        #         work_data.rsp = rsp
-        #         work_data.plugin_name = plugin_name           
-        #         self.general_work.put(work_data)
+        if gener_url not in self.urls:
+            self.urls[gener_url]=""
+            # 推通用插件
+            for plugin_name in self.general_plugins_dict.keys():
+                work_data = WorkData()
+                work_data.url_info = url_info
+                work_data.req = req
+                work_data.rsp = rsp
+                work_data.plugin_name = plugin_name           
+                self.general_work.put(work_data)
