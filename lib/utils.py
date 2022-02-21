@@ -4,7 +4,7 @@
 Author: Recar
 Date: 2021-06-28 22:40:10
 LastEditors: recar
-LastEditTime: 2022-01-26 16:50:26
+LastEditTime: 2022-02-21 11:47:15
 '''
 from lib.log import logger
 from cowpy.cow import milk_random_cow
@@ -15,6 +15,7 @@ import hashlib
 import random
 import copy
 import uuid
+import os
 
 
 class Utils(object):
@@ -123,6 +124,14 @@ class Utils(object):
             return True
         return False
 
+    @staticmethod
+    def get_all_filepaths(target_dir):
+        all_filepaths = list()
+        for root, _, files in os.walk(target_dir):
+            for filename in files:
+                filepath = os.path.join(root, filename)
+                all_filepaths.append(filepath)
+        return all_filepaths
 
     @staticmethod
     def banner():
