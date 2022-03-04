@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-10 10:50:05
 LastEditors: recar
-LastEditTime: 2022-02-10 11:44:18
+LastEditTime: 2022-03-04 17:28:44
 '''
 
 from queue import PriorityQueue, Queue
@@ -148,12 +148,24 @@ class WorkData(object):
         self._plugin_name = plugin_name
 
     @property
+    def poc_name(self):
+        return self._poc_name
+    @poc_name.setter
+    def poc_name(self, poc_name):
+        self._poc_name = poc_name
+
+    @property
     def url_info(self):
         return self._url_info
 
     @url_info.setter
     def url_info(self, url_info):
         self._url_info = url_info
+        self.ip = url_info.get("server_ip")
+        self.port = url_info.get("server_port")
+        self.ssl = False
+        if "https:" in url_info.get('url'):
+            self.ssl = True
 
     @property
     def url(self):

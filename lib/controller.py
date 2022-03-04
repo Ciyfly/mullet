@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-02-21 17:01:23
+LastEditTime: 2022-03-04 17:52:56
 '''
 from lib.work import Worker, WorkData
 from plugins.report import Report
@@ -11,7 +11,6 @@ from plugins.fingerprint.fingerprint import Fingerprint
 from plugins.sensitive_info.sensitive_info import SensitiveInfo
 from lib.log import logger
 from lib.utils import Utils
-from lib.poc_parser import XaryPocParser
 import traceback
 import importlib
 import time
@@ -29,12 +28,12 @@ class Controller(object):
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.plugins_dir = os.path.join(self.base_path, "../", 'plugins')
         self.general_plugins_dir = os.path.join(self.plugins_dir, "general")
-        self.poc_xray_dir = os.path.join(self.plugins_dir, "poc", "xray")
-        self.poc_nuclei_dir = os.path.join(self.plugins_dir, "poc", "nuclei")
+        self.pocs_dir = os.path.join(self.plugins_dir, "poc", "pocs")
 
         # 类注册到sys pth
         # 通用
         sys.path.append(self.general_plugins_dir)
+        sys.path.append(self.pocs_dir)
         # poc
 
     def init(self):
@@ -42,11 +41,11 @@ class Controller(object):
         # 启动报告模块
         self.report = Report()
         self.report_work = self.report.report_work
-        self._run_fingerprint()
-        self._run_sensitive_info()
-        # 加载通用检测模块
-        self._load_general_plugins()
-        self._run_general()
+        # self._run_fingerprint()
+        # self._run_sensitive_info()
+        # # 加载通用检测模块
+        # self._load_general_plugins()
+        # self._run_general()
         # 加载poc 和poc检测模块
         self._load_pocs()
         self._run_poc()
@@ -109,28 +108,26 @@ class Controller(object):
     # 先直接poc全发一下
     def _load_pocs(self):
         self.logger.info("load pocs")
-        # 需要先解析加载所有的poc插件 目前是是xray的和nuclei的
-        all_xray_pocs_path_list = Utils.get_all_filepaths(self.poc_xray_dir)
-        all_xray_pocs_parser_list = list()
-        for xray_pocs_path in all_xray_pocs_path_list:
-            try:
-                xpp = XaryPocParser(xray_pocs_path)
-                xray_rule_flow = xpp.parser("127.0.0.1", 80)
-            except:
-                self.logger.error("parser poc error: {0}".format(traceback.format_exc()))
-            all_xray_pocs_parser_list.append(xray_rule_flow)
-        self.logger.info("xray poc count: {0}".format(len(all_xray_pocs_path_list)))
+        self.poc_pocs_dict = dict()
+        all_pocs_path_list = Utils.get_all_filepaths(self.pocs_dir)
+        for poc_path in all_pocs_path_list:
+            _, poc_name = os.path.split(poc_path)
+            if not poc_name.endswith(".py"):
+                continue
+            poc_name = poc_name.replace(".py", "")
+            self.logger.info("poc_name: {0}".format(poc_name))
+            metaclass = importlib.import_module(poc_name)
+            self.poc_pocs_dict[poc_name] = metaclass.Poc()
+        self.logger.info("poc count: {0}".format(len(self.poc_pocs_dict.keys())))
     
     def _run_poc(self):
-        def consumer(data):
-            data = data[1].get("data")
-            plugins_name = data.get("plugins")
-            req = data.get("req")
-            rsp = data.get("rsp")
-            url_info = data.get("url_info")
-            # 动态实例插件名称并传递req和rsp来执行
-            metaclass = importlib.import_module(plugins_name)
-            metaclass.Scan().run(url_info, req, rsp)
+        def consumer(work_data):
+            poc_name = work_data.poc_name
+            ip = work_data.ip
+            port = work_data.port
+            ssl = work_data.ssl
+            poc_plugin = copy.copy(self.poc_pocs_dict.get(poc_name))
+            poc_plugin.run(self.logger, self.report_work, ip, port, ssl=ssl)
         self.poc_work = Worker(consumer, consumer_count=10)
 
     def print_task_queue(self):
@@ -154,26 +151,24 @@ class Controller(object):
             work_data.url_info = url_info
             work_data.req = req
             work_data.rsp = rsp
-            self.fingerprint_work.put(work_data)
+            # self.fingerprint_work.put(work_data)
             # 推敏感信息扫描
-            self.logger.debug("gen task sensitive_info")
-            self.sensitiveInfo_work.put(work_data)
+            # self.logger.debug("gen task sensitive_info")
+            # self.sensitiveInfo_work.put(work_data)
 
-            # 推poc
-            #     self.logger.info("gen task poc")
-            #     self.poc_work.put({
-            #         "url_info": url_info,
-            #         "req": req,
-            #         "rsp": rsp
-            #     })
-            #     self.domains.add(domain)
-        if gener_url not in self.urls:
-            self.urls[gener_url]=""
-            # 推通用插件
-            for plugin_name in self.general_plugins_dict.keys():
-                work_data = WorkData()
-                work_data.url_info = url_info
-                work_data.req = req
-                work_data.rsp = rsp
-                work_data.plugin_name = plugin_name           
-                self.general_work.put(work_data)
+            # 推poc poc暂时直接打就完事了
+            self.logger.info("gen task poc")
+            for poc_name in self.poc_pocs_dict.keys():
+                work_data.poc_name = poc_name
+                self.poc_work.put(work_data)
+
+        # if gener_url not in self.urls:
+        #     self.urls[gener_url]=""
+        #     # 推通用插件
+        #     for plugin_name in self.general_plugins_dict.keys():
+        #         work_data = WorkData()
+        #         work_data.url_info = url_info
+        #         work_data.req = req
+        #         work_data.rsp = rsp
+        #         work_data.plugin_name = plugin_name           
+        #         self.general_work.put(work_data)
