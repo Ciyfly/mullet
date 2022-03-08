@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-04 18:56:43
+LastEditTime: 2022-03-08 10:39:33
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -20,61 +20,49 @@ import requests
 requests.packages.urllib3.disable_warnings()
 
 def raw2req(raw):
-        raw = raw.strip()
-        try:
-            index = raw.index('\n')
-        except ValueError:
-            raise Exception("ValueError")
-        try:
-            method, path, protocol = raw[:index].split(" ")
-        except:
-            raise Exception("Protocol format error")
-        raw = raw[index + 1:]
+        CRLF ="\n"
+        def _parse_request_line(request_line):
+            request_parts = request_line.split(' ')
+            method = request_parts[0]
+            path = request_parts[1]
+            protocol = request_parts[2] if len(request_parts) > 2 else "HTTP 1.1"
+            return method, path, protocol
 
-        try:
-            host_start = raw.index("Host: ")
-            host_end = raw.index('\n', host_start)
-
-        except ValueError:
-            raise ValueError("Host headers not found")
-
-        else:
-            host = raw[host_start + len("Host: "):host_end]
-            if ":" in host:
-                host, port = host.split(":")
-        raws = raw.splitlines()
-        headers = {}
-        index = 0
-        for r in raws:
-            if r == "":
-                break
-            try:
-                k, v = r.split(": ")
-            except:
-                k = r
-                v = ""
-            headers[k] = v
-            index += 1
-        headers["Connection"] = "close"
-        if len(raws) < index + 1:
-            body = ''
-        else:
-            body = '\n'.join(raws[index + 1:]).lstrip()
-            if body:
-                if headers.get("Transfer-Encoding", '').lower() == "chunked":
-                    body = body.replace('\r\n', '\n')
-                    body = body.replace('\n', '\r\n')
-                    body = body + "\r\n" * 2
+        req_lines = raw.split("\n")
+        method, path, protocol = _parse_request_line(req_lines[0])
+        ind = 1
+        headers = dict()
+        while ind < len(req_lines) and len(req_lines[ind]) > 0:
+            colon_ind = req_lines[ind].find(':')
+            header_key = req_lines[ind][:colon_ind]
+            header_value = req_lines[ind][colon_ind + 1:]
+            headers[header_key] = header_value.strip()
+            ind += 1
+        ind += 1
+        body = req_lines[ind:] if ind < len(req_lines) else None
+        is_json = headers.get('Content-Type')
+        if body is not None:
+            if is_json=="application/json":
+                 body = "".join([b.strip() for b in body])
+            else:
+                body = CRLF.join(body)
         return method, path, headers, body
 
 
-def req2raw(request):
-    raw = '%s %s %s\r\n' % (str(request.method), str(request.path), str(request.http_version))
+def rsp2req_raw(response):
+    request = response.request
+    http_version_int = response.raw.version
+    if http_version_int ==10:
+        http_version = "HTTP/1.0"
+    else:
+        http_version = "HTTP/1.1"
+    raw = '%s %s %s\r\n' % (request.method, str(request.path_url), http_version)
     # Add headers to the request
+    req_data = ""
     for k, v in request.headers.items():
         req_data += k + ': ' + v + '\r\n'
     req_data += '\r\n'
-    req_data += str(request.raw_content)
+    req_data += str(request.body)
     return raw    
 
 
@@ -203,12 +191,9 @@ class PocBase(object):
         # params = raw_req.params
         method,path,headers, data = raw2req(raw)
         url = "{0}{1}".format(self.base_url, path)
-        self.logger.info(method)
-        self.logger.info(path)
-        self.logger.info(headers)
-        self.logger.info(data)        
-        self.logger.info(url)
-        return self.request(method, url, headers=headers, data=data, verify=False)
+        tmp = self.request(method, url, headers=headers, data=data, verify=False)
+        return tmp
+
 
     def run(self, logger, report_work, ip, port, ssl=False):
         # 初始化赋值
@@ -217,7 +202,7 @@ class PocBase(object):
         self.ip = ip
         self.port = port
         self.ssl = ssl
-        self.logger.info(self.ssl)
+        self.logger.debug(self.ssl)
         if self.ssl:
             self.base_url = "https://{0}:{1}".format(self.ip, self.port)
         else:
@@ -229,9 +214,10 @@ class PocBase(object):
         response = self.send_payload()
         # 验证
         verify_status = self.verify(response)
+        self.logger.debug("{0}  verify_status: {1}".format(self.name, verify_status))
         # 清理环境
         self.tear_down()
         if verify_status:
             self.logger.info("!!!! 发现漏洞: {0} \n{1} \n".format(self.name, response.request.url))
-            result_info = ResultInfo(self.name, response.request.url, req2raw(response.request), "", self.desc)
+            result_info = ResultInfo(self.name, response.request.url, rsp2req_raw(response), rsp2req_raw(response), "", self.desc)
             self.report_work.put(result_info)
