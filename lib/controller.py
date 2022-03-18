@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-18 15:41:14
+LastEditTime: 2022-03-18 18:08:28
 '''
 from lib.work import Worker, WorkData
 from plugins.report import Report
@@ -35,13 +35,18 @@ class Controller(object):
         sys.path.append(self.pocs_dir)
         # poc
 
-    def init(self):
+    def init(self, block=True):
         self.logger.info("Controller Init ")
         # 启动报告模块
         self.report = Report()
+        # 阻塞状态 True的话是被动代理 False的话是主动扫描
+        self.block = block
+        # 报告
         self.report_work = self.report.report_work
-        self.fingerprint_handler = Fingerprint(self.report_work)
-        # self._run_sensitive_info()
+        # 指纹
+        self.fingerprint_handler = Fingerprint(self.report_work, block=self.block)
+        # 敏感信息
+        self.sensitiveInfo_handler = SensitiveInfo(self.report_work, block=self.block)
         # # 加载通用检测模块
         # self._load_general_plugins()
         # self._run_general()
@@ -64,18 +69,6 @@ class Controller(object):
                     self.general_plugins_dict[plugins_name] = metaclass.Scan(self.report_work)
             break
         self.logger.info("general plugins count: {0}".format(len(self.general_plugins_dict.keys())))
-
-
-    # 敏感信息
-    def _run_sensitive_info(self):
-        sensitiveInfo_handler = SensitiveInfo(self.report_work)
-        def consumer(work_data):
-            url_info = work_data.url_info
-            req = work_data.req
-            rsp = work_data.rsp
-            sensitiveInfo_handler.run(url_info, req, rsp)
-        self.sensitiveInfo_work = Worker(consumer, consumer_count=1)
-        # self.task_queue_map["sensitiveInfo"] = self.sensitiveInfo_work.work_queue
 
 
     # 通用插件
@@ -130,8 +123,6 @@ class Controller(object):
 
     # 入口分发任务
     def run(self, url_info, req, rsp):
-        
-
         domain =  url_info.get('host')
         gener_url = url_info.get("gener_url")
         if domain not in self.domains:
@@ -139,10 +130,8 @@ class Controller(object):
             self.logger.debug(f"[*] gen task fingerprint: {domain}")
             # 推指纹
             self.fingerprint_handler.run(url_info, req, rsp)
-            # self.fingerprint_work.put(work_data)
             # 推敏感信息扫描
-            # self.logger.debug("gen task sensitive_info")
-            # self.sensitiveInfo_work.put(work_data)
+            self.sensitiveInfo_handler.run(url_info, req, rsp)
 
             # poc这里要按指纹来跑
             # self.logger.info("gen task poc")
@@ -160,7 +149,9 @@ class Controller(object):
         #         work_data.rsp = rsp
         #         work_data.plugin_name = plugin_name           
         #         self.general_work.put(work_data)
-        while not self.fingerprint_handler.fingerprint_work.is_end():
-            pass
-            # time.sleep(3)
-        return
+        if not self.block:
+            while not self.fingerprint_handler.fingerprint_work.is_end():
+                time.sleep(3)
+            while not self.sensitiveInfo_handler.seninfo_work.is_end():
+                time.sleep(3)                
+            return

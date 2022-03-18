@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-03-18 17:36:47
+LastEditTime: 2022-03-18 17:57:04
 '''
 from lib.log import logger
 from lib.work import Worker
@@ -17,10 +17,11 @@ import sys
 import os
 
 class Fingerprint(Base):
-    def __init__(self, report_work):
+    def __init__(self, report_work, block=True):
         super(Fingerprint, self).__init__(report_work)
         self.logger= logger
         self.timeout = 3
+        self.block = block
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.plugins_name = "fingerprint"
         self.result_list = list()
@@ -59,6 +60,6 @@ class Fingerprint(Base):
                     "desc": "指纹识别"
                 }
                 self.to_result(result)
-        self.fingerprint_work = Worker(consumer, consumer_count=10, block=False)        
+        self.fingerprint_work = Worker(consumer, consumer_count=10, block=self.block)        
         for fingerprint_name in self.fingerprint_dict.keys():
             self.fingerprint_work.put((fingerprint_name, host))

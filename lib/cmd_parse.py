@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 16:28:33
 LastEditors: recar
-LastEditTime: 2022-03-18 15:40:01
+LastEditTime: 2022-03-18 17:54:15
 '''
 from lib.data import controller
 from lib.http_parser import HTTPParser
@@ -26,7 +26,7 @@ def cli(server_addr, verbose,url,url_file, debug):
         logger.setLevel(logging.DEBUG)
     # scan
     if url or url_file:
-        controller.init()
+        controller.init(block=False)
         # 主动扫描推任务到controller
         urls = list()
         if url_file:

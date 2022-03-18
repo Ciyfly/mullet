@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-02-10 14:17:31
+LastEditTime: 2022-03-18 18:08:44
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData
@@ -11,9 +11,10 @@ import os
 
 
 class SensitiveInfo(Base):
-    def __init__(self, report_work):
+    def __init__(self, report_work, block=True):
         super(SensitiveInfo, self).__init__(report_work)
         self.plugins = "sensitive_info"
+        self.block = block
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.seninfo_dict = dict()
         self._load_dict()
@@ -41,7 +42,7 @@ class SensitiveInfo(Base):
                     "desc": "敏感信息泄露",
                 }
                 self.to_result(result)
-        self.task_work = Worker(consumer, consumer_count=1)
+        self.seninfo_work = Worker(consumer, consumer_count=1, block=self.block)
 
     def _load_dict(self):
         dict_path = os.path.join(self.base_path,"sensitive_info.txt")
@@ -69,7 +70,7 @@ class SensitiveInfo(Base):
     def run(self, url_info, req, rsp):
         if url_info.get("type") != "dynamic":
             return
-        url = url_info.get('host')
+        url = url_info.get('base_url')
         if url[-1]=="/":
             url = url[:-1]
         for path in self.seninfo_dict.keys():
@@ -78,7 +79,7 @@ class SensitiveInfo(Base):
             work_data.url = test_url
             self.logger.debug("senitive_info test url: {0}".format(test_url))
             work_data.condition = self.seninfo_dict[path]
-            self.task_work.put(work_data)
+            self.seninfo_work.put(work_data)
 
 
 
