@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 16:28:33
 LastEditors: recar
-LastEditTime: 2022-03-04 18:39:18
+LastEditTime: 2022-03-18 15:40:01
 '''
 from lib.data import controller
 from lib.http_parser import HTTPParser
@@ -16,7 +16,7 @@ import os
 @click.command()
 @click.option('-s', 'server_addr', type=str, default="0.0.0.0:8686", help='listen server addr defalut 0.0.0.0:8686')
 @click.option('-v', '--verbose', count=True, help="use attack level")
-@click.option('-u', '--url', type=str, help="scan target")
+@click.option('-u', '--url', type=str, help="Do it directly without using proxy mode")
 @click.option('-f', '--url_file', type=str, help="scan target file")
 @click.option('--debug/--no-debug', help="log level set debug default False")
 def cli(server_addr, verbose,url,url_file, debug):
@@ -27,7 +27,7 @@ def cli(server_addr, verbose,url,url_file, debug):
     # scan
     if url or url_file:
         controller.init()
-        # 主动扫描推任务到controller.arp
+        # 主动扫描推任务到controller
         urls = list()
         if url_file:
             if os.path.exists(url_file):
@@ -41,8 +41,9 @@ def cli(server_addr, verbose,url,url_file, debug):
             urls.append(url)
         for url in urls:
             rsp, req = HTTPParser.get_res_req_by_url(url)
-            url_info = HTTPParser.reqs_to_urlinfo(req)
+            url_info = HTTPParser.req_to_urlinfo(req)
             controller.run(url_info, req, rsp)
+            logger.info("end")
     else:
         # 被动扫描
         controller.init()

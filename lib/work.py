@@ -3,15 +3,15 @@
 '''
 Date: 2022-01-10 10:50:05
 LastEditors: recar
-LastEditTime: 2022-03-04 17:28:44
+LastEditTime: 2022-03-18 17:40:48
 '''
 
 from queue import PriorityQueue, Queue
+from queue import Empty
 from datetime import datetime
 from lib.log import logger
 import threading
 import traceback
-import logging
 import signal
 import sys
 
@@ -24,10 +24,15 @@ def ctrl_c(signum, frame):
 signal.signal(signal.SIGINT, ctrl_c)
 
 class BaseWorker(object):
-    def __init__(self, consumer_func, consumer_count=1):
+    def __init__(self, consumer_func, consumer_count=1, block=True):
         self.logger = logger
         self.consumer_count = consumer_count
-        self.work_queue = Queue()        
+        self.block = block
+        if self.block:
+            self.timeout = None
+        else:
+            self.timeout = 3
+        self.work_queue = Queue()
         self.run(consumer_func)
 
     def put(self, item):
@@ -50,34 +55,51 @@ class BaseWorker(object):
         @params func 消费者函数
         '''
         while True:
-            item = self.work_queue.get()
             try:
+                item = self.work_queue.get(timeout=self.timeout)
                 func(item)
+            except Empty:
+                return
             except Exception:
                 self.logger.error("consumer error: {0}".format(traceback.format_exc()))
+
+    def is_end(self):
+        '''
+        队列是否空的并且线程永远不会结束那怎么判断任务结束
+        '''
+        if self.work_queue.qsize() !=0:
+            return False
+        # 线程是否都结束了
+        count = self.consumer_count
+        for t in self.threads:
+            if not t.isAlive():
+                count -=1
+        if count ==0:
+            return True
+        return False
 
     def run(self, consumer_func):
         '''
         运行方法
         @params consumer_func 消费者函数
         '''
-        threads = []
+        self.threads = []
         for i in range(self.consumer_count):
             t = threading.Thread(target=self.consumer,args=(consumer_func,))
             t.setDaemon(True)
             t.start()
-            threads.append(t)
+            self.threads.append(t)
 
 class Worker(BaseWorker):
     '''普通消费队列'''
-    def __init__(self, consumer_func, consumer_count=1):
-        super(Worker, self).__init__(consumer_func, consumer_count=consumer_count)
+    def __init__(self, consumer_func, consumer_count=1, block=True):
+        super(Worker, self).__init__(consumer_func, consumer_count=consumer_count, block=block)
 
 
 class WorkerPrior(BaseWorker):
     '''优先消费队列'''
-    def __init__(self, consumer_func, consumer_count=1):
-        super(WorkerPrior, self).__init__(consumer_func, consumer_count=consumer_count)
+    def __init__(self, consumer_func, consumer_count=1, block=True):
+        super(WorkerPrior, self).__init__(consumer_func, consumer_count=consumer_count, block=block)
         self.work_queue = PriorityQueue()
 
     def put(self, item, priority=10):
@@ -111,8 +133,8 @@ class LimitWork(BaseWorker):
     '''
     限流work
     '''
-    def __init__(self, consumer_func, consumer_count=1):
-        super(LimitWork, self).__init__(consumer_func, consumer_count=consumer_count)
+    def __init__(self, consumer_func, consumer_count=1, block=True):
+        super(LimitWork, self).__init__(consumer_func, consumer_count=consumer_count, block=block)
 
     def consumer(self, func, limit_time=1):
         '''

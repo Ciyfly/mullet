@@ -3,9 +3,10 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-01-14 15:16:08
+LastEditTime: 2022-03-18 10:57:34
 '''
 from urllib.parse import unquote
+from urllib.parse import urlparse
 from lib.utils import Utils
 from lib.log import logger
 import traceback
@@ -24,7 +25,7 @@ class HTTPParser(object):
                     "png", "css", "jpg", "svg",
                     "ttf", "eot", "eot", "woff2", "gif",
                     "bmp" "svg", "less", "sass", "scss", "ico",
-                    "woff", "html", "md", "htm"]:
+                    "woff", "md"]:
             if  url_suffix == "js":
                 url_info["type"] = "js"
             elif url_suffix in ["jsp", "php", "asp", "aspx"]:
@@ -34,9 +35,58 @@ class HTTPParser(object):
             gener_url = Utils.generalization(url)
             url_info["gener_url"] = gener_url
             url_info["url"] = url
+            # url parse
+            parse_url = urlparse(url)
+            url_info["path"] = parse_url.path
+            url_info["params"] = parse_url.params
+            url_info["query"] = parse_url.query
+
             url_info["host"] = flow.request.host
             url_info["server_port"] = flow.server_conn.ip_address[1]
             url_info["server_ip"] = flow.server_conn.ip_address[0]
+            if "https" in url:
+                url_info["ssl"] = True
+                url_info["base_url"] = "https://{0}".format(url_info["host"])
+            else:
+                url_info["ssl"] = False
+                url_info["base_url"] = "http://{0}".format(url_info["host"])
+
+
+        return url_info
+
+
+    @staticmethod
+    def req_to_urlinfo(req):
+        url_info = dict()
+        url = req.url
+        url = unquote(url, 'utf-8')
+        url_info["url"] = url
+        parse_url = urlparse(url)
+        url_info["path"] = parse_url.path
+        url_info["params"] = parse_url.params
+        url_info["query"] = parse_url.query
+        url_info["host"] = parse_url.netloc   
+        url_suffix = Utils.get_url_suffix(url)
+        if url_suffix not in [
+                    "png", "css", "jpg", "svg",
+                    "ttf", "eot", "eot", "woff2", "gif",
+                    "bmp" "svg", "less", "sass", "scss", "ico",
+                    "woff", "md"]:
+            if  url_suffix == "js":
+                url_info["type"] = "js"
+            elif url_suffix in ["jsp", "php", "asp", "aspx"]:
+                url_info["type"] = url_suffix
+            else:
+                url_info["type"] = "dynamic"
+            gener_url = Utils.generalization(url)
+            url_info["gener_url"] = gener_url
+            if "https" in url:
+                url_info["ssl"] = True
+                url_info["base_url"] = "https://{0}".format(url_info["host"])
+            else:
+                url_info["ssl"] = False
+                url_info["base_url"] = "http://{0}".format(url_info["host"])
+
         return url_info
 
     @staticmethod
@@ -74,28 +124,7 @@ class HTTPParser(object):
         rsp["timestamp_end"] = flow.response.timestamp_end
         return rsp
 
-    @staticmethod
-    def reqs_to_urlinfo(reqs):
-        url_info = dict()
-        url = reqs.url
-        url = unquote(url, 'utf-8')
-        url_suffix = Utils.get_url_suffix(url)
-        if url_suffix not in [
-                    "png", "css", "jpg", "svg",
-                    "ttf", "eot", "eot", "woff2", "gif",
-                    "bmp" "svg", "less", "sass", "scss", "ico",
-                    "woff", "html", "md", "htm"]:
-            if  url_suffix == "js":
-                url_info["type"] = "js"
-            elif url_suffix in ["jsp", "php", "asp", "aspx"]:
-                url_info["type"] = url_suffix
-            else:
-                url_info["type"] = "dynamic"
-            gener_url = Utils.generalization(url)
-            url_info["gener_url"] = gener_url
-            url_info["url"] = url
-            url_info["host"] = reqs.headers.get("host")
-        return url_info
+
 
     @staticmethod
     def reqs_to_req(reqs):
