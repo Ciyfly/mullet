@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-21 15:28:29
 LastEditors: recar
-LastEditTime: 2022-03-21 18:19:45
+LastEditTime: 2022-03-21 20:37:29
 '''
 
 from lib.log import logger
@@ -25,14 +25,19 @@ class PocScan(Base):
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.plugins_name = "PocScan"
         self.result_list = list()
-        self.poc_dict = defaultdict(list)
+        self.poc_fingerprint_dict = defaultdict(list)
+        self.poc_name_dict = dict()
         self.load_script()
 
 
     # 先加上所有script 然后copy测试
     def load_script(self):
         script_path = os.path.join(self.base_path, "pocs")
-        sys.path.append(script_path)
+        for poc_dir in os.listdir(script_path):
+            if poc_dir == "__pycache__":
+                continue
+            poc_dir_path = os.path.join(script_path, poc_dir)
+            sys.path.append(poc_dir_path)
         all_poc_path_list = Utils.get_all_filepaths(script_path)
         count = 0
         for poc_path in all_poc_path_list:
@@ -45,7 +50,9 @@ class PocScan(Base):
             metaclass = importlib.import_module(poc)
             poc_class = metaclass.Poc()
             fingerprint = poc_class.fingerprint
-            self.poc_dict[fingerprint].append(poc_class)
+            name = poc_class.name
+            self.poc_fingerprint_dict[fingerprint].append(poc_class)
+            self.poc_name_dict[poc] = poc_class
             count +=1
         self.logger.info("poc count: {0}".format(count))
 
@@ -56,27 +63,18 @@ class PocScan(Base):
         base_url = url_info.get('base_url')
         ip = url_info.get('ip')
         port = url_info.get('port')
-        script_path = os.path.join(self.base_path, "pocs")
-        sys.path.append(script_path)
-        all_poc_path_list = Utils.get_all_filepaths(script_path)
-        for poc_path in all_poc_path_list:
-            _, poc = os.path.split(poc_path)
-            if not poc.startswith(poc_name) or not poc.endswith(".py"):
-                continue
-            poc = poc.replace(".py", "")
-            metaclass = importlib.import_module(poc)
-            poc_class = metaclass.Poc()
-            poc_plugins = copy.copy(poc_class)
-            match, result = poc_plugins.run(self.logger, self.report_work, base_url, ip, port)
-            if match:
-                result = {
-                    "plugins": self.plugins_name,
-                    "payload": result,
-                    "url": base_url,
-                    "url_info": url_info,
-                    "desc": "poc验证"
-                }
-                self.print_result(result)
+        poc_class = self.poc_name_dict[poc_name]
+        poc_plugins = copy.copy(poc_class)
+        match, result = poc_plugins.run(self.logger, self.report_work, base_url, ip, port)
+        if match:
+            result = {
+                "plugins": self.plugins_name,
+                "payload": result,
+                "url": base_url,
+                "url_info": url_info,
+                "desc": "poc验证"
+            }
+            self.print_result(result)
         
     def run(self, url_info, req, rsp, fingerprint):
         host = url_info.get('base_url')
