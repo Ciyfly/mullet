@@ -3,12 +3,13 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-18 18:08:28
+LastEditTime: 2022-03-21 14:25:32
 '''
 from lib.work import Worker, WorkData
 from plugins.report import Report
 from plugins.fingerprint.fingerprint import Fingerprint
 from plugins.sensitive_info.sensitive_info import SensitiveInfo
+from plugins.general.general import General
 from lib.log import logger
 from lib.utils import Utils
 import importlib
@@ -47,45 +48,9 @@ class Controller(object):
         self.fingerprint_handler = Fingerprint(self.report_work, block=self.block)
         # 敏感信息
         self.sensitiveInfo_handler = SensitiveInfo(self.report_work, block=self.block)
-        # # 加载通用检测模块
-        # self._load_general_plugins()
-        # self._run_general()
-        # 加载poc 和poc检测模块
-        self._load_pocs()
-        self._run_poc()
-
-    def _load_general_plugins(self):
-        '''
-        加载通用url级的检查插件
-        '''
-        self.logger.info("load general plugins please wait a moment ~")
-        self.general_plugins_dict = dict()
-        for _, _, files in os.walk(self.general_plugins_dir):
-            for filename in files:
-                plugins_name = filename.split(".")[0]
-                if plugins_name not in [self.general_plugins_dict.keys()]:
-                    self.logger.info("plugins: {0}".format(plugins_name))
-                    metaclass = importlib.import_module(plugins_name)
-                    self.general_plugins_dict[plugins_name] = metaclass.Scan(self.report_work)
-            break
-        self.logger.info("general plugins count: {0}".format(len(self.general_plugins_dict.keys())))
-
-
-    # 通用插件
-    def _run_general(self):
-        def consumer(work_data):
-            url_info = work_data.url_info
-            req = work_data.req
-            rsp = work_data.rsp
-            plugin_name = work_data.plugin_name
-            # self.logger.info("[*] gen task plugin: {0}".format(plugin_name))
-            # 动态实例插件名称并传递req和rsp来执行
-            # scan_plugins = Utils.object_copy(self.general_plugins_dict.get(plugin_name))
-            scan_plugins = copy.copy(self.general_plugins_dict.get(plugin_name))
-            scan_plugins.run(url_info, req, rsp)
-        self.general_work = Worker(consumer, consumer_count=1)
-
-    # poc插件
+        # 通用检测模块
+        if self.block:
+            self.general_plugins_handler = General(self.report_work, block=self.block)
 
     # 先直接poc全发一下
     def _load_pocs(self):
@@ -101,7 +66,7 @@ class Controller(object):
             metaclass = importlib.import_module(poc_name)
             self.poc_pocs_dict[poc_name] = metaclass.Poc()
         self.logger.info("poc count: {0}".format(len(self.poc_pocs_dict.keys())))
-    
+
     def _run_poc(self):
         def consumer(work_data):
             poc_name = work_data.poc_name
@@ -125,30 +90,29 @@ class Controller(object):
     def run(self, url_info, req, rsp):
         domain =  url_info.get('host')
         gener_url = url_info.get("gener_url")
+        self.logger.debug("block: {0}".format(self.block))
         if domain not in self.domains:
+            self.logger.debug("Domain: {0}".format(domain))
             self.domains[domain]=""
-            self.logger.debug(f"[*] gen task fingerprint: {domain}")
             # 推指纹
+            self.logger.debug("fingerprint")
             self.fingerprint_handler.run(url_info, req, rsp)
+
             # 推敏感信息扫描
+            self.logger.debug("sensitiveInfo")
             self.sensitiveInfo_handler.run(url_info, req, rsp)
-
             # poc这里要按指纹来跑
-            # self.logger.info("gen task poc")
-            # for poc_name in self.poc_pocs_dict.keys():
-            #     work_data.poc_name = poc_name
-            #     self.poc_work.put(work_data)
+            # TODO poc
+            # 根据指纹的结果推poc
+            # 指纹的结果怎么拿
+            
 
-        # if gener_url not in self.urls:
-        #     self.urls[gener_url]=""
-        #     # 推通用插件
-        #     for plugin_name in self.general_plugins_dict.keys():
-        #         work_data = WorkData()
-        #         work_data.url_info = url_info
-        #         work_data.req = req
-        #         work_data.rsp = rsp
-        #         work_data.plugin_name = plugin_name           
-        #         self.general_work.put(work_data)
+        # 被动代理模式才用通用插件
+        if self.block and gener_url not in self.urls:
+            self.urls[gener_url]=""
+            # 推通用插件
+            self.general_plugins_handler.run(url_info, req, rsp)
+        # 主动扫描的话阻塞任务
         if not self.block:
             while not self.fingerprint_handler.fingerprint_work.is_end():
                 time.sleep(3)

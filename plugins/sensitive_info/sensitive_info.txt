@@ -5,14 +5,14 @@
 
 # java
 /WEB-INF/web.xml            {match="<?xml"}    {status=200}     {type="xml"}
-/solr/            {{match="<title>Solr Admin</title>"} {status=200} {type="html"}
-/zabbix/            {{match="<title>Zabbix</title>"}
-/resin-admin/            {{status=200}    {match="<title>Resin Admin Login for"}
+/solr/            {match="<title>Solr Admin</title>"}     {status=200}     {type="html"}
+/zabbix/            {match="<title>Zabbix</title>"}
+/resin-admin/            {status=200}    {match="<title>Resin Admin Login for"}
 
 # Spring Boot Actuator
-/configprops            {{status=200}     {match="serverProperties"}
-/actuator/configprops            {{status=200}     {match="serverProperties"}
-/env            {{status=200}     {match="systemProperties"}
+/configprops            {status=200}     {match="serverProperties"}
+/actuator/configprops            {status=200}     {match="serverProperties"}
+/env            {status=200}     {match="systemProperties"}
 # /autoconfig
 # /beans
 # /configprops

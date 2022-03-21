@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2021-06-25 17:42:42
-LastEditors: Recar
-LastEditTime: 2022-02-10 21:07:43
+LastEditors: recar
+LastEditTime: 2022-03-18 18:30:04
 '''
 import js2py
 import re
@@ -49,7 +49,7 @@ class Scan(Base):
                 value = data["value"]["value"]
                 all_maps[key] = value
 
-    def run(self, url_info, req, rsp):
+    def verify(self, url_info, req, rsp):
         url = url_info.get("url","")
         rsp_text = rsp.get('text',"")
         all_maps = dict()

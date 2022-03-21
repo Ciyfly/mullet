@@ -2,8 +2,8 @@
 # coding=utf-8
 '''
 Date: 2021-06-25 17:36:26
-LastEditors: Recar
-LastEditTime: 2022-02-10 21:26:11
+LastEditors: recar
+LastEditTime: 2022-03-18 18:29:58
 '''
 from plugins.scan import Base
 import re
@@ -63,7 +63,7 @@ class Scan(Base):
                     find_list.append(self.url_completion(url_url, line))
         return find_list
 
-    def run(self, url_info, req, rsp):
+    def verify(self, url_info, req, rsp):
         url_type = url_info.get('type')
         url_url = url_info.get('url')
         rsp_text = rsp.get('text', "")

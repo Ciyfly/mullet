@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-03-18 18:08:44
+LastEditTime: 2022-03-21 14:53:27
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData
@@ -34,14 +34,14 @@ class SensitiveInfo(Base):
                 elif tag == "match":
                     if str(condition_dict[tag]) not in response.text:
                         return False
-                self.logger.info(f"[+] SensitiveInfo: {url}")
-                result = {
-                    "plugins": self.plugins,
-                    "url": url,
-                    "payload": url,
-                    "desc": "敏感信息泄露",
-                }
-                self.to_result(result)
+            self.logger.info(f"[+] SensitiveInfo: {url}")
+            result = {
+                "plugins": self.plugins,
+                "url": url,
+                "payload": url,
+                "desc": "敏感信息泄露",
+            }
+            self.to_result(result)
         self.seninfo_work = Worker(consumer, consumer_count=1, block=self.block)
 
     def _load_dict(self):
