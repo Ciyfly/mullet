@@ -3,8 +3,9 @@
 '''
 Date: 2022-01-12 16:28:33
 LastEditors: recar
-LastEditTime: 2022-03-18 17:54:15
+LastEditTime: 2022-03-21 17:40:57
 '''
+from cmath import log
 from lib.data import controller
 from lib.http_parser import HTTPParser
 from lib.proxy import proxy_run
@@ -18,13 +19,15 @@ import os
 @click.option('-v', '--verbose', count=True, help="use attack level")
 @click.option('-u', '--url', type=str, help="Do it directly without using proxy mode")
 @click.option('-f', '--url_file', type=str, help="scan target file")
+@click.option('-p', '--poc', type=str, help="run poc")
 @click.option('--debug/--no-debug', help="log level set debug default False")
-def cli(server_addr, verbose,url,url_file, debug):
-    """mullet option"""
+def cli(server_addr, verbose, url, url_file, poc, debug):
+    logger.info(poc)
+    logger.info(url)
     # set log level
     if debug:
         logger.setLevel(logging.DEBUG)
-    # scan
+    # url
     if url or url_file:
         controller.init(block=False)
         # 主动扫描推任务到controller
@@ -39,12 +42,30 @@ def cli(server_addr, verbose,url,url_file, debug):
                 click.exit()
         if url:
             urls.append(url)
+    # 单个poc
+    if poc:
+        logger.info("run poc: {0}".format(poc))
         for url in urls:
             rsp, req = HTTPParser.get_res_req_by_url(url)
+            if rsp is None:
+                logger.error("{0} :不能访问".format(url))
+                continue
+            url_info = HTTPParser.req_to_urlinfo(req)
+            controller.run_poc(url_info, req, rsp, poc)
+    # scan
+    elif not poc:
+        logger.info("scan")
+        for url in urls:
+            rsp, req = HTTPParser.get_res_req_by_url(url)
+            if rsp is None:
+                logger.error("{0} :不能访问".format(url))
+                continue            
             url_info = HTTPParser.req_to_urlinfo(req)
             controller.run(url_info, req, rsp)
             logger.info("end")
+
     else:
+        logger.info("proxy")
         # 被动扫描
         controller.init()
         addr, port = server_addr.split(":")

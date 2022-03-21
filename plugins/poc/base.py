@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-08 10:39:33
+LastEditTime: 2022-03-21 18:20:08
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -183,30 +183,20 @@ class PocBase(object):
         return self.request('delete', url, **kwargs)
 
     def send_raw(self, raw):
-        # raw_req = RequestParser(raw.encode()).request
-        # method = raw_req.method
-        # path = raw_req.path
-        # headers = raw_req.headers
-        # data = raw_req.data
-        # params = raw_req.params
         method,path,headers, data = raw2req(raw)
         url = "{0}{1}".format(self.base_url, path)
+        headers["host"] ="{0}:{1}".format(self.ip, self.port)
         tmp = self.request(method, url, headers=headers, data=data, verify=False)
         return tmp
 
 
-    def run(self, logger, report_work, ip, port, ssl=False):
+    def run(self, logger, report_work, base_url, ip, port):
         # 初始化赋值
         self.logger = logger
         self.report_work = report_work
+        self.base_url = base_url
         self.ip = ip
         self.port = port
-        self.ssl = ssl
-        self.logger.debug(self.ssl)
-        if self.ssl:
-            self.base_url = "https://{0}:{1}".format(self.ip, self.port)
-        else:
-            self.base_url = "http://{0}:{1}".format(self.ip, self.port)
         # 测试流程
         # 前置条件
         self.setup()
@@ -221,3 +211,4 @@ class PocBase(object):
             self.logger.info("!!!! 发现漏洞: {0} \n{1} \n".format(self.name, response.request.url))
             result_info = ResultInfo(self.name, response.request.url, rsp2req_raw(response), rsp2req_raw(response), "", self.desc)
             self.report_work.put(result_info)
+        return verify_status, str(response.request.url)

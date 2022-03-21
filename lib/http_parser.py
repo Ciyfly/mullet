@@ -3,13 +3,12 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-03-18 10:57:34
+LastEditTime: 2022-03-21 18:03:39
 '''
 from urllib.parse import unquote
 from urllib.parse import urlparse
 from lib.utils import Utils
 from lib.log import logger
-import traceback
 import requests
 
 
@@ -65,7 +64,20 @@ class HTTPParser(object):
         url_info["path"] = parse_url.path
         url_info["params"] = parse_url.params
         url_info["query"] = parse_url.query
-        url_info["host"] = parse_url.netloc   
+        url_info["host"] = parse_url.netloc
+        if ":" in url_info["host"]:
+            url_info["ip"] = url_info["host"].split(":")[0]
+            url_info["port"] = url_info["host"].split(":")[1]
+        if "https" in url:
+            url_info["ssl"] = True
+            url_info["base_url"] = "https://{0}".format(url_info["host"])
+            if ":" not in url_info["host"]:
+                url_info["port"] = url_info["443"]
+        else:
+            url_info["ssl"] = False
+            url_info["base_url"] = "http://{0}".format(url_info["host"])
+            if ":" not in url_info["host"]:
+                url_info["port"] = url_info["80"]            
         url_suffix = Utils.get_url_suffix(url)
         if url_suffix not in [
                     "png", "css", "jpg", "svg",
@@ -80,12 +92,6 @@ class HTTPParser(object):
                 url_info["type"] = "dynamic"
             gener_url = Utils.generalization(url)
             url_info["gener_url"] = gener_url
-            if "https" in url:
-                url_info["ssl"] = True
-                url_info["base_url"] = "https://{0}".format(url_info["host"])
-            else:
-                url_info["ssl"] = False
-                url_info["base_url"] = "http://{0}".format(url_info["host"])
 
         return url_info
 
@@ -167,4 +173,4 @@ class HTTPParser(object):
             response = requests.get(url,headers=headers,timeout=10)
             return response, response.request
         except:
-            logger.error("req error: {0} : {1}".format(url, traceback.format_exc()))
+            return None, None

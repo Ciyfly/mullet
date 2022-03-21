@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-21 15:59:45
+LastEditTime: 2022-03-21 18:06:37
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -101,3 +101,7 @@ class Controller(object):
                     self.poc_handler.run(url_info, req, rsp, payload)
                 #TODO 其他的
             return
+
+    def run_poc(self, url_info, req, rsp, poc_name):
+        self.poc_handler.run_poc_by_name(url_info, req, rsp, poc_name)
+        self.logger.info("poc run over")
