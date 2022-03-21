@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-03-21 15:58:57
+LastEditTime: 2022-03-21 21:22:12
 '''
 from lib.log import logger
 from lib.work import Worker
@@ -41,22 +41,23 @@ class Fingerprint(Base):
                 continue
             metaclass = importlib.import_module(fingerprint)
             self.fingerprint_dict[fingerprint] = metaclass.Check()
-        self.logger.info("fingerprint count: {0}".format(len(self.fingerprint_dict.keys())))            
+        self.logger.debug("fingerprint count: {0}".format(len(self.fingerprint_dict.keys())))            
 
     def run(self, url_info, req, rsp):
         host = url_info.get('base_url')
         def consumer(data):
             fingerprint_name, host = data
             fingerprint_plugins = copy.copy(self.fingerprint_dict.get(fingerprint_name))
-            match, result = fingerprint_plugins.verify(host)
+            match, data = fingerprint_plugins.verify(host)
             if match:
                 result = {
                     "plugins": self.plugins_name,
-                    "payload": result,
+                    "payload": data,
                     "url": host,
                     "url_info": url_info,
                     "desc": "指纹识别"
                 }
+                self.logger.info("[+] Fingerprint: {0}".format(result.get("payload")))
                 self.to_result(result)
         self.fingerprint_work = Worker(consumer, consumer_count=10, block=self.block)        
         for fingerprint_name in self.fingerprint_dict.keys():

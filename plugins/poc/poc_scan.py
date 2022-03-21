@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-21 15:28:29
 LastEditors: recar
-LastEditTime: 2022-03-21 20:37:29
+LastEditTime: 2022-03-21 21:21:06
 '''
 
 from lib.log import logger
@@ -54,7 +54,7 @@ class PocScan(Base):
             self.poc_fingerprint_dict[fingerprint].append(poc_class)
             self.poc_name_dict[poc] = poc_class
             count +=1
-        self.logger.info("poc count: {0}".format(count))
+        self.logger.debug("poc count: {0}".format(count))
 
     def run_poc_by_name(self, url_info, req, rsp, poc_name):
         '''
@@ -77,20 +77,17 @@ class PocScan(Base):
             self.print_result(result)
         
     def run(self, url_info, req, rsp, fingerprint):
-        host = url_info.get('base_url')
+        base_url = url_info.get('base_url')
+        ip = url_info.get('ip')
+        port = url_info.get('port')        
         def consumer(poc_plugins):
-            match, result = poc_plugins.verify(host)
+            match, result = poc_plugins.run(self.logger, self.report_work, base_url, ip, port)
             if match:
-                result = {
-                    "plugins": self.plugins_name,
-                    "payload": result,
-                    "url": host,
-                    "url_info": url_info,
-                    "desc": "poc验证"
-                }
+                self.logger.info("[+] PocScan: {0}".format(result.get("plugins")))
+                result["url_info"] = url_info
                 self.to_result(result)
         self.poc_work = Worker(consumer, consumer_count=10, block=self.block)        
-        plugins_class_list = self.poc_dict.get(fingerprint)
+        plugins_class_list = self.poc_fingerprint_dict.get(fingerprint)
         if plugins_class_list is None:
             return
         for plugins_class in plugins_class_list:

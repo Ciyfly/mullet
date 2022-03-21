@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-21 20:17:46
+LastEditTime: 2022-03-21 21:18:46
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -209,8 +209,13 @@ class PocBase(object):
         self.logger.debug("{0}  verify_status: {1}".format(self.name, verify_status))
         # 清理环境
         self.tear_down()
+        result = dict()
         if verify_status:
-            self.logger.info("!!!! 发现漏洞: {0} \n{1} \n".format(self.name, response.request.url))
-            result_info = ResultInfo(self.name, response.request.url, rsp2req_raw(response), rsp2req_raw(response), "", self.desc)
-            self.report_work.put(result_info)
-        return verify_status, str(response.request.url)
+            result = {
+                "plugins": self.name,
+                "payload": rsp2req_raw(response),
+                "url": base_url,
+                "desc": self.desc
+            }
+        return verify_status, result
+

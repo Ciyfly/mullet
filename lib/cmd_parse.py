@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 16:28:33
 LastEditors: recar
-LastEditTime: 2022-03-21 17:40:57
+LastEditTime: 2022-03-21 21:05:23
 '''
 from cmath import log
 from lib.data import controller
@@ -22,8 +22,6 @@ import os
 @click.option('-p', '--poc', type=str, help="run poc")
 @click.option('--debug/--no-debug', help="log level set debug default False")
 def cli(server_addr, verbose, url, url_file, poc, debug):
-    logger.info(poc)
-    logger.info(url)
     # set log level
     if debug:
         logger.setLevel(logging.DEBUG)

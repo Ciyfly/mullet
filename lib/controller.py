@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-21 18:06:37
+LastEditTime: 2022-03-21 21:05:58
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -38,7 +38,7 @@ class Controller(object):
         # poc
 
     def init(self, block=True):
-        self.logger.info("Controller Init ")
+        self.logger.debug("Controller Init ")
         # 启动报告模块
         self.report = Report()
         # 阻塞状态 True的话是被动代理 False的话是主动扫描
@@ -99,7 +99,8 @@ class Controller(object):
                     payload = result_info.payload
                     self.logger.debug("fingerprint: {0} ->poc".format(payload))
                     self.poc_handler.run(url_info, req, rsp, payload)
-                #TODO 其他的
+            while not self.poc_handler.poc_work.is_end():
+                time.sleep(3)    
             return
 
     def run_poc(self, url_info, req, rsp, poc_name):
