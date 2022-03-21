@@ -3,16 +3,14 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-03-18 17:57:04
+LastEditTime: 2022-03-21 15:58:57
 '''
 from lib.log import logger
 from lib.work import Worker
 from lib.utils import Utils
 from plugins.scan import Base
-import traceback
 import importlib
 import copy
-import json
 import sys
 import os
 

@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-03-21 14:53:27
+LastEditTime: 2022-03-21 15:59:20
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData

@@ -2,14 +2,13 @@
 # coding=utf-8
 '''
 Date: 2022-01-12 10:07:56
-LastEditors: Recar
-LastEditTime: 2022-02-10 21:26:59
+LastEditors: recar
+LastEditTime: 2022-03-21 15:59:05
 '''
 from lib.log import logger
 from lib.utils import Utils
 from lib.work import ResultInfo
 import urllib.parse
-import traceback
 import requests
 import json
 import os

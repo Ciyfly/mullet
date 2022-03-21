@@ -3,13 +3,14 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-21 14:25:32
+LastEditTime: 2022-03-21 15:59:45
 '''
-from lib.work import Worker, WorkData
+from lib.work import Worker
 from plugins.report import Report
 from plugins.fingerprint.fingerprint import Fingerprint
 from plugins.sensitive_info.sensitive_info import SensitiveInfo
 from plugins.general.general import General
+from plugins.poc.poc_scan import PocScan
 from lib.log import logger
 from lib.utils import Utils
 import importlib
@@ -51,31 +52,9 @@ class Controller(object):
         # 通用检测模块
         if self.block:
             self.general_plugins_handler = General(self.report_work, block=self.block)
+        # poc 模块
+        self.poc_handler = PocScan(self.report_work, block=self.block)
 
-    # 先直接poc全发一下
-    def _load_pocs(self):
-        self.logger.info("load pocs")
-        self.poc_pocs_dict = dict()
-        all_pocs_path_list = Utils.get_all_filepaths(self.pocs_dir)
-        for poc_path in all_pocs_path_list:
-            _, poc_name = os.path.split(poc_path)
-            if not poc_name.endswith(".py"):
-                continue
-            poc_name = poc_name.replace(".py", "")
-            self.logger.info("poc_name: {0}".format(poc_name))
-            metaclass = importlib.import_module(poc_name)
-            self.poc_pocs_dict[poc_name] = metaclass.Poc()
-        self.logger.info("poc count: {0}".format(len(self.poc_pocs_dict.keys())))
-
-    def _run_poc(self):
-        def consumer(work_data):
-            poc_name = work_data.poc_name
-            ip = work_data.ip
-            port = work_data.port
-            ssl = work_data.ssl
-            poc_plugin = copy.copy(self.poc_pocs_dict.get(poc_name))
-            poc_plugin.run(self.logger, self.report_work, ip, port, ssl=ssl)
-        self.poc_work = Worker(consumer, consumer_count=10)
 
     def print_task_queue(self):
         while True:
@@ -101,12 +80,6 @@ class Controller(object):
             # 推敏感信息扫描
             self.logger.debug("sensitiveInfo")
             self.sensitiveInfo_handler.run(url_info, req, rsp)
-            # poc这里要按指纹来跑
-            # TODO poc
-            # 根据指纹的结果推poc
-            # 指纹的结果怎么拿
-            
-
         # 被动代理模式才用通用插件
         if self.block and gener_url not in self.urls:
             self.urls[gener_url]=""
@@ -117,5 +90,14 @@ class Controller(object):
             while not self.fingerprint_handler.fingerprint_work.is_end():
                 time.sleep(3)
             while not self.sensitiveInfo_handler.seninfo_work.is_end():
-                time.sleep(3)                
+                time.sleep(3)           
+            # poc这里要按指纹来跑
+            # report_info 上面的检测结果
+            for result_info in self.report.result_list:
+                plugins = result_info.plugins
+                if plugins == "fingerprint":
+                    payload = result_info.payload
+                    self.logger.debug("fingerprint: {0} ->poc".format(payload))
+                    self.poc_handler.run(url_info, req, rsp, payload)
+                #TODO 其他的
             return
