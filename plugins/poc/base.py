@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-21 18:20:08
+LastEditTime: 2022-03-21 20:17:46
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -202,6 +202,8 @@ class PocBase(object):
         self.setup()
         # 发送payload
         response = self.send_payload()
+        self.logger.debug("url: {0}".format(response.url))
+        self.logger.debug("status code: {0}".format(response.status_code))
         # 验证
         verify_status = self.verify(response)
         self.logger.debug("{0}  verify_status: {1}".format(self.name, verify_status))
