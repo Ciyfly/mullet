@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-21 21:18:46
+LastEditTime: 2022-03-22 10:56:24
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -13,8 +13,11 @@ LastEditTime: 2022-03-21 21:18:46
 
 # poc
 from requests import sessions
-from lib.work import ResultInfo
 import requests
+import random
+import string
+import base64
+import hashlib
 
 
 requests.packages.urllib3.disable_warnings()
@@ -190,6 +193,24 @@ class PocBase(object):
         return tmp
 
 
+    # 辅助函数
+
+    def gen_random_str(self, size=8):
+        return ''.join(random.sample(string.ascii_letters + string.digits, size))
+
+    def gen_random_int(self, a, b):
+        return  random.randint(a, b)
+
+    def base64(self, s):
+        return base64.b64encode(s.encode())
+
+    def unbase64(self, s):
+        return base64.b64decode(s).decode()
+
+    def md5(self, s):
+        return hashlib.md5(s.encode()).hexdigest()
+
+    # 统一入口
     def run(self, logger, report_work, base_url, ip, port):
         # 初始化赋值
         self.logger = logger
