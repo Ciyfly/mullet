@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-22 10:56:24
+LastEditTime: 2022-03-22 18:45:39
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -196,7 +196,7 @@ class PocBase(object):
     # 辅助函数
 
     def gen_random_str(self, size=8):
-        return ''.join(random.sample(string.ascii_letters + string.digits, size))
+        return ''.join(random.sample(string.ascii_letters + string.digits, size)).lower()
 
     def gen_random_int(self, a, b):
         return  random.randint(a, b)

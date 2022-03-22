@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-22 11:01:24
 LastEditors: recar
-LastEditTime: 2022-03-22 16:08:27
+LastEditTime: 2022-03-22 20:20:24
 '''
 from lib.log import logger
 import configparser
@@ -54,15 +54,21 @@ class Reverse(object):
                 self.dnslog_domain = None
 
     def gen_random_str(self, size=8):
-        return ''.join(random.sample(string.ascii_letters + string.digits, size))
+        return ''.join(random.sample(string.ascii_letters + string.digits, size)).lower()
         
     def verify(self):
         self.logger.debug("flag_domain: {0}".format(self.domain))
+        headers = {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "Host": "api.ceye.io",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
+        }
         time.sleep(self.time_wait)
         if self.platform=="ceye":
             url = "http://api.ceye.io/v1/records?token={0}&type=dns&filter={1}".format(self.ceye_token, self.flag_str)
             try:
-                response = requests.get(url, timeout=3)
+                self.logger.debug("verify_url: {0}".format(url))
+                response = requests.get(url, headers=headers)
                 data = response.json()
                 if "Invalid Parameter" in str(data):
                     self.logger.error("需要配置ceye.io token")

