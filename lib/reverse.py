@@ -3,19 +3,22 @@
 '''
 Date: 2022-03-22 11:01:24
 LastEditors: recar
-LastEditTime: 2022-03-22 15:24:10
+LastEditTime: 2022-03-22 16:08:27
 '''
+from lib.log import logger
 import configparser
 import requests
 import random
 import string
 import time
+import sys
 import os
 
 # 反连平台  
 
 class Reverse(object):
     def __init__(self, platform="ceye", time_wait=5):
+        self.logger = logger
         self.platform = platform
         self.time_wait = time_wait
         self.flag_str = self.gen_random_str()
@@ -34,7 +37,13 @@ class Reverse(object):
         # ceye
         if self.platform == "ceye":
             self.ceye_domain = conf.get('reverse', 'ceye_domain')
+            if not self.ceye_domain:
+                self.logger.error("需要配置ceye domain")
+                sys.exit(1)
             self.ceye_token = conf.get('reverse', 'ceye_token')
+            if not self.ceye_token:
+                self.logger.error("需要配置ceye token")
+                sys.exit(1)
         # dnslog
         elif self.platform == "dnslog":
             self.session = requests.Session()
@@ -48,12 +57,18 @@ class Reverse(object):
         return ''.join(random.sample(string.ascii_letters + string.digits, size))
         
     def verify(self):
+        self.logger.debug("flag_domain: {0}".format(self.domain))
         time.sleep(self.time_wait)
         if self.platform=="ceye":
             url = "http://api.ceye.io/v1/records?token={0}&type=dns&filter={1}".format(self.ceye_token, self.flag_str)
             try:
                 response = requests.get(url, timeout=3)
                 data = response.json()
+                if "Invalid Parameter" in str(data):
+                    self.logger.error("需要配置ceye.io token")
+                    sys.exit(1)
+                self.logger.debug("data: {0}".format(data))
+                data = data.get("data")
                 if len(data) >0:
                     return True
                 return False
