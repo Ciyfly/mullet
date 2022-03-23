@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-21 15:28:29
 LastEditors: recar
-LastEditTime: 2022-03-21 21:21:06
+LastEditTime: 2022-03-23 10:07:53
 '''
 
 from lib.log import logger
@@ -65,7 +65,7 @@ class PocScan(Base):
         port = url_info.get('port')
         poc_class = self.poc_name_dict[poc_name]
         poc_plugins = copy.copy(poc_class)
-        match, result = poc_plugins.run(self.logger, self.report_work, base_url, ip, port)
+        match, result = poc_plugins.run(self.logger, self.report_work, url_info)
         if match:
             result = {
                 "plugins": self.plugins_name,
@@ -81,7 +81,7 @@ class PocScan(Base):
         ip = url_info.get('ip')
         port = url_info.get('port')        
         def consumer(poc_plugins):
-            match, result = poc_plugins.run(self.logger, self.report_work, base_url, ip, port)
+            match, result = poc_plugins.run(self.logger, self.report_work, url_info)
             if match:
                 self.logger.info("[+] PocScan: {0}".format(result.get("plugins")))
                 result["url_info"] = url_info

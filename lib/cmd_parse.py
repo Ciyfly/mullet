@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 16:28:33
 LastEditors: recar
-LastEditTime: 2022-03-21 21:05:23
+LastEditTime: 2022-03-23 10:05:30
 '''
 from cmath import log
 from lib.data import controller
@@ -26,10 +26,10 @@ def cli(server_addr, verbose, url, url_file, poc, debug):
     if debug:
         logger.setLevel(logging.DEBUG)
     # url
+    urls = list()
     if url or url_file:
         controller.init(block=False)
         # 主动扫描推任务到controller
-        urls = list()
         if url_file:
             if os.path.exists(url_file):
                 with open(url_file, 'r') as f:
@@ -51,7 +51,7 @@ def cli(server_addr, verbose, url, url_file, poc, debug):
             url_info = HTTPParser.req_to_urlinfo(req)
             controller.run_poc(url_info, req, rsp, poc)
     # scan
-    elif not poc:
+    elif not poc and urls:
         logger.info("scan")
         for url in urls:
             rsp, req = HTTPParser.get_res_req_by_url(url)

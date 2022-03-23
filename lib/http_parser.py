@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-03-21 18:03:39
+LastEditTime: 2022-03-23 09:58:45
 '''
 from urllib.parse import unquote
 from urllib.parse import urlparse
@@ -59,7 +59,7 @@ class HTTPParser(object):
         url_info = dict()
         url = req.url
         url = unquote(url, 'utf-8')
-        url_info["url"] = url
+        url_info["origin_url"] = url
         parse_url = urlparse(url)
         url_info["path"] = parse_url.path
         url_info["params"] = parse_url.params

@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-22 18:45:39
+LastEditTime: 2022-03-23 10:08:21
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -211,13 +211,14 @@ class PocBase(object):
         return hashlib.md5(s.encode()).hexdigest()
 
     # 统一入口
-    def run(self, logger, report_work, base_url, ip, port):
+    def run(self, logger, report_work, url_info):
         # 初始化赋值
         self.logger = logger
         self.report_work = report_work
-        self.base_url = base_url
-        self.ip = ip
-        self.port = port
+        self.url_info = url_info
+        self.base_url = url_info.get('base_url')
+        self.ip = url_info.get('ip')
+        self.port = url_info.get('port')
         # 测试流程
         # 前置条件
         self.setup()
@@ -235,7 +236,7 @@ class PocBase(object):
             result = {
                 "plugins": self.name,
                 "payload": rsp2req_raw(response),
-                "url": base_url,
+                "url": self.base_url,
                 "desc": self.desc
             }
         return verify_status, result
