@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-23 18:15:34
+LastEditTime: 2022-03-23 18:23:02
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -212,6 +212,7 @@ class PocBase(object):
 
     # 统一入口
     def run(self, logger, report_work, url_info):
+        self.headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36 Zxxz/1.0","Connection":"close"}
         # 初始化赋值
         self.logger = logger
         self.report_work = report_work

