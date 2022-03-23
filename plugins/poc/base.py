@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-23 10:08:21
+LastEditTime: 2022-03-23 18:15:34
 '''
 # from __future__ import absolute_import, unicode_literals
 
@@ -222,12 +222,8 @@ class PocBase(object):
         # 测试流程
         # 前置条件
         self.setup()
-        # 发送payload
-        response = self.send_payload()
-        self.logger.debug("url: {0}".format(response.url))
-        self.logger.debug("status code: {0}".format(response.status_code))
         # 验证
-        verify_status = self.verify(response)
+        verify_status, payload = self.verify()
         self.logger.debug("{0}  verify_status: {1}".format(self.name, verify_status))
         # 清理环境
         self.tear_down()
@@ -235,7 +231,7 @@ class PocBase(object):
         if verify_status:
             result = {
                 "plugins": self.name,
-                "payload": rsp2req_raw(response),
+                "payload": payload,
                 "url": self.base_url,
                 "desc": self.desc
             }

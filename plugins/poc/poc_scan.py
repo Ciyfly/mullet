@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-21 15:28:29
 LastEditors: recar
-LastEditTime: 2022-03-23 10:07:53
+LastEditTime: 2022-03-23 18:18:57
 '''
 
 from lib.log import logger
@@ -61,25 +61,18 @@ class PocScan(Base):
         指定poc_file_name run poc
         '''
         base_url = url_info.get('base_url')
-        ip = url_info.get('ip')
-        port = url_info.get('port')
         poc_class = self.poc_name_dict[poc_name]
         poc_plugins = copy.copy(poc_class)
-        match, result = poc_plugins.run(self.logger, self.report_work, url_info)
+        match, poc_result = poc_plugins.run(self.logger, self.report_work, url_info)
         if match:
             result = {
                 "plugins": self.plugins_name,
-                "payload": result,
-                "url": base_url,
                 "url_info": url_info,
-                "desc": "poc验证"
             }
+            resule = result.update(poc_result)
             self.print_result(result)
         
     def run(self, url_info, req, rsp, fingerprint):
-        base_url = url_info.get('base_url')
-        ip = url_info.get('ip')
-        port = url_info.get('port')        
         def consumer(poc_plugins):
             match, result = poc_plugins.run(self.logger, self.report_work, url_info)
             if match:
