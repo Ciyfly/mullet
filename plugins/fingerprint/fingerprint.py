@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-03-21 21:22:12
+LastEditTime: 2022-03-23 18:37:45
 '''
 from lib.log import logger
 from lib.work import Worker
@@ -58,6 +58,7 @@ class Fingerprint(Base):
                     "desc": "指纹识别"
                 }
                 self.logger.info("[+] Fingerprint: {0}".format(result.get("payload")))
+                self.print_result(result)
                 self.to_result(result)
         self.fingerprint_work = Worker(consumer, consumer_count=10, block=self.block)        
         for fingerprint_name in self.fingerprint_dict.keys():

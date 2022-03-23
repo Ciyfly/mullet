@@ -3,13 +3,16 @@
 '''
 Date: 2022-03-21 20:39:10
 LastEditors: recar
-LastEditTime: 2022-03-21 20:57:29
+LastEditTime: 2022-03-23 18:31:17
 '''
 
 from plugins.fingerprint.scripts.base import FingerprintCheck
 import requests
 
 class Check(FingerprintCheck):
+    def __init__(self):
+        super(Check, self).__init__()
+    
     def verify(self, host):
         self.name = "struts2"
         url = f"{host}/"

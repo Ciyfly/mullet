@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-21 15:28:29
 LastEditors: recar
-LastEditTime: 2022-03-23 18:18:57
+LastEditTime: 2022-03-23 18:38:50
 '''
 
 from lib.log import logger
@@ -78,6 +78,7 @@ class PocScan(Base):
             if match:
                 self.logger.info("[+] PocScan: {0}".format(result.get("plugins")))
                 result["url_info"] = url_info
+                self.print_result(result)
                 self.to_result(result)
         self.poc_work = Worker(consumer, consumer_count=10, block=self.block)        
         plugins_class_list = self.poc_fingerprint_dict.get(fingerprint)

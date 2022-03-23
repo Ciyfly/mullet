@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 10:07:56
 LastEditors: recar
-LastEditTime: 2022-03-21 15:59:05
+LastEditTime: 2022-03-23 18:37:25
 '''
 from lib.log import logger
 from lib.utils import Utils
@@ -33,7 +33,6 @@ class Base(object):
         self.logger.info(json.dumps(result, sort_keys=True, indent=4, separators=(',', ':'), ensure_ascii=False))
 
     def to_result(self, result):
-        self.print_result(result)
         plugins = result.get("plugins", "")
         url = result.get("url", "")
         payload = result.get("payload", "")
