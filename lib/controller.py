@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-21 21:05:58
+LastEditTime: 2022-03-24 10:37:35
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -12,8 +12,7 @@ from plugins.sensitive_info.sensitive_info import SensitiveInfo
 from plugins.general.general import General
 from plugins.poc.poc_scan import PocScan
 from lib.log import logger
-from lib.utils import Utils
-import importlib
+import configparser
 import time
 import copy
 import sys
@@ -35,7 +34,19 @@ class Controller(object):
         # 通用
         sys.path.append(self.general_plugins_dir)
         sys.path.append(self.pocs_dir)
-        # poc
+        # load config
+        self.load_config()
+
+    def load_config(self):
+        config_path = os.path.join(self.base_path, "../", "config", "config.ini")
+        conf = configparser.ConfigParser()
+        conf.read(config_path)
+        self.switch_fingerprint = conf.getboolean('switch', 'fingerprint')
+        self.switch_sensitive_info = conf.getboolean('switch', 'sensitive_info')
+        self.switch_general = conf.getboolean('switch', 'general')
+        self.switch_poc = conf.getboolean('switch', 'poc')
+        # 通用插件的开启列表
+        self.switch_general_list = conf.get('switch_general', 'list').split(",")
 
     def init(self, block=True):
         self.logger.debug("Controller Init ")
@@ -74,34 +85,40 @@ class Controller(object):
             self.logger.debug("Domain: {0}".format(domain))
             self.domains[domain]=""
             # 推指纹
-            self.logger.debug("fingerprint")
-            self.fingerprint_handler.run(url_info, req, rsp)
-
+            if self.switch_fingerprint:
+                self.logger.debug("fingerprint")
+                self.fingerprint_handler.run(url_info, req, rsp)
             # 推敏感信息扫描
-            self.logger.debug("sensitiveInfo")
-            self.sensitiveInfo_handler.run(url_info, req, rsp)
+            if self.switch_sensitive_info:
+                self.logger.debug("sensitiveInfo")
+                self.sensitiveInfo_handler.run(url_info, req, rsp)
         # 被动代理模式才用通用插件
         if self.block and gener_url not in self.urls:
             self.urls[gener_url]=""
             # 推通用插件
-            self.general_plugins_handler.run(url_info, req, rsp)
+            if self.switch_general:
+                self.general_plugins_handler.run(url_info, req, rsp, self.switch_general_list)
         # 主动扫描的话阻塞任务
         if not self.block:
-            while not self.fingerprint_handler.fingerprint_work.is_end():
-                time.sleep(3)
-            while not self.sensitiveInfo_handler.seninfo_work.is_end():
-                time.sleep(3)           
+            if self.switch_fingerprint:
+                while not self.fingerprint_handler.fingerprint_work.is_end():
+                    time.sleep(3)
+            if self.switch_sensitive_info:                    
+                while not self.sensitiveInfo_handler.seninfo_work.is_end():
+                    time.sleep(3)
+
             # poc这里要按指纹来跑
-            # report_info 上面的检测结果
-            for result_info in self.report.result_list:
-                plugins = result_info.plugins
-                if plugins == "fingerprint":
-                    payload = result_info.payload
-                    self.logger.debug("fingerprint: {0} ->poc".format(payload))
-                    self.poc_handler.run(url_info, req, rsp, payload)
-            while not self.poc_handler.poc_work.is_end():
-                time.sleep(3)    
-            return
+            if self.switch_poc:
+                for result_info in self.report.result_list:
+                    plugins = result_info.plugins
+                    if plugins == "fingerprint":
+                        payload = result_info.payload
+                        self.logger.debug("fingerprint: {0} ->poc".format(payload))
+                        self.poc_handler.run(url_info, req, rsp, payload)
+                if self.switch_poc and self.switch_fingerprint:
+                    while not self.poc_handler.poc_work.is_end():
+                        time.sleep(3)
+                return
 
     def run_poc(self, url_info, req, rsp, poc_name):
         self.poc_handler.run_poc_by_name(url_info, req, rsp, poc_name)

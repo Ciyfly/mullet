@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-18 18:23:19
 LastEditors: recar
-LastEditTime: 2022-03-21 15:59:26
+LastEditTime: 2022-03-24 10:26:48
 '''
 
 from lib.log import logger
@@ -43,7 +43,7 @@ class General(Base):
             self.general_dict[general] = metaclass.Scan(self.report_work)
         self.logger.info("general count: {0}".format(len(self.general_dict.keys())))            
 
-    def run(self, url_info, req, rsp):
+    def run(self, url_info, req, rsp, open_plugins_list=None):
         url =  url_info.get('url')
         def consumer(data):
             general_name, url = data
@@ -60,4 +60,5 @@ class General(Base):
                 self.to_result(result)
         self.general_work = Worker(consumer, consumer_count=10, block=self.block)        
         for general_name in self.general_dict.keys():
-            self.general_work.put((general_name, url))
+            if general_name in open_plugins_list:
+                self.general_work.put((general_name, url))
