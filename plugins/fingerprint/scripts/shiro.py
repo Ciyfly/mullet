@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-23 16:25:57
 LastEditors: recar
-LastEditTime: 2022-03-23 18:32:45
+LastEditTime: 2022-03-24 14:24:43
 '''
 from plugins.fingerprint.scripts.base import FingerprintCheck
 import requests
@@ -16,9 +16,9 @@ class Check(FingerprintCheck):
         self.name = "shiro"
         url = f"{host}/"
         try:
-            response=requests.get(url,cookies={"rememberMe":"recar"}, verify=False, allow_redirects=False, timeout=3)
+            response=self.request(url, cookies={"rememberMe":"recar"})
         except:
             return False, None
-        if "rememberMe=deleteMe" in response.headers['Set-Cookie']:
+        if "rememberMe=deleteMe" in response.headers.get('Set-Cookie'):
             return True, self.name
         return False, None

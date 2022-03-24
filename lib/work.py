@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-10 10:50:05
 LastEditors: recar
-LastEditTime: 2022-03-18 17:40:48
+LastEditTime: 2022-03-24 10:50:16
 '''
 
 from queue import PriorityQueue, Queue
@@ -129,12 +129,12 @@ class WorkerPrior(BaseWorker):
                 self.logger.error("consumer error: {0}".format(traceback.format_exc()))
 
 
-class LimitWork(BaseWorker):
+class LimitWorker(BaseWorker):
     '''
     限流work
     '''
     def __init__(self, consumer_func, consumer_count=1, block=True):
-        super(LimitWork, self).__init__(consumer_func, consumer_count=consumer_count, block=block)
+        super(LimitWorker, self).__init__(consumer_func, consumer_count=consumer_count, block=block)
 
     def consumer(self, func, limit_time=1):
         '''

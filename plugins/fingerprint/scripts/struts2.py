@@ -3,11 +3,10 @@
 '''
 Date: 2022-03-21 20:39:10
 LastEditors: recar
-LastEditTime: 2022-03-23 18:31:17
+LastEditTime: 2022-03-24 14:24:46
 '''
 
 from plugins.fingerprint.scripts.base import FingerprintCheck
-import requests
 
 class Check(FingerprintCheck):
     def __init__(self):
@@ -17,10 +16,10 @@ class Check(FingerprintCheck):
         self.name = "struts2"
         url = f"{host}/"
         try:
-            response = requests.get(url, timeout=3)
+            response = self.request(url)
         except:
             return False, None
-        set_cookie = response.headers["Set-Cookie"]
+        set_cookie = response.headers.get("Set-Cookie")
         # if set_cookie.startswith("JSESSIONID=C09CBBF") and set_cookie.endswith("7CF6D25D4F0"):
         if set_cookie.startswith("JSESSIONID="):
             return True, self.name

