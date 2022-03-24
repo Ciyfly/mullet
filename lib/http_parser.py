@@ -3,10 +3,10 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-03-23 09:58:45
+LastEditTime: 2022-03-24 18:56:55
 '''
 from urllib.parse import unquote
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 from lib.utils import Utils
 from lib.log import logger
 import requests
@@ -34,13 +34,15 @@ class HTTPParser(object):
             gener_url = Utils.generalization(url)
             url_info["gener_url"] = gener_url
             url_info["url"] = url
+            url_info["origin_url"] = url
             # url parse
             parse_url = urlparse(url)
             url_info["path"] = parse_url.path
             url_info["params"] = parse_url.params
             url_info["query"] = parse_url.query
-
+            url_info["query_dict"] = parse_qs(parse_url.query)
             url_info["host"] = flow.request.host
+            url_info["method"] = flow.request.method
             url_info["server_port"] = flow.server_conn.ip_address[1]
             url_info["server_ip"] = flow.server_conn.ip_address[0]
             if "https" in url:
@@ -65,6 +67,7 @@ class HTTPParser(object):
         url_info["params"] = parse_url.params
         url_info["query"] = parse_url.query
         url_info["host"] = parse_url.netloc
+        url_info["query_dict"] = parse_qs(parse_url.query)
         if ":" in url_info["host"]:
             url_info["ip"] = url_info["host"].split(":")[0]
             url_info["port"] = url_info["host"].split(":")[1]

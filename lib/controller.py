@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-24 10:37:35
+LastEditTime: 2022-03-24 18:42:50
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -57,14 +57,19 @@ class Controller(object):
         # 报告
         self.report_work = self.report.report_work
         # 指纹
-        self.fingerprint_handler = Fingerprint(self.report_work, block=self.block)
+        if self.switch_fingerprint:
+            self.fingerprint_handler = Fingerprint(self.report_work, block=self.block)
         # 敏感信息
-        self.sensitiveInfo_handler = SensitiveInfo(self.report_work, block=self.block)
+        if self.switch_sensitive_info:
+            self.sensitiveInfo_handler = SensitiveInfo(self.report_work, block=self.block)
         # 通用检测模块
+        self.logger.info("block: {0}".format(self.block))
         if self.block:
-            self.general_plugins_handler = General(self.report_work, block=self.block)
+            if self.switch_general:
+                self.general_plugins_handler = General(self.report_work, block=self.block)
         # poc 模块
-        self.poc_handler = PocScan(self.report_work, block=self.block)
+        if self.switch_poc:
+            self.poc_handler = PocScan(self.report_work, block=self.block)
 
 
     def print_task_queue(self):
@@ -94,9 +99,11 @@ class Controller(object):
                 self.sensitiveInfo_handler.run(url_info, req, rsp)
         # 被动代理模式才用通用插件
         if self.block and gener_url not in self.urls:
+            self.logger.debug("general")
             self.urls[gener_url]=""
             # 推通用插件
             if self.switch_general:
+                self.logger.debug("switch_general")
                 self.general_plugins_handler.run(url_info, req, rsp, self.switch_general_list)
         # 主动扫描的话阻塞任务
         if not self.block:

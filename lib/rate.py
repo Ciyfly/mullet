@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-24 10:44:11
 LastEditors: recar
-LastEditTime: 2022-03-24 14:25:17
+LastEditTime: 2022-03-24 18:41:08
 '''
 from ratelimiter import RateLimiter
 from lib.log import logger
@@ -29,6 +29,7 @@ def rate_request(
     allow_redirects=False, cookies=None, timeout=timeout):
     try:
         # get potst 回调函数要加个
+        logger.debug("rate url: {0}".format(url))
         response = requests.request(
             method=method, url=url, data=data, verify=verify,
             headers=headers, allow_redirects=allow_redirects,

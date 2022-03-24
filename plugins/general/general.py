@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-18 18:23:19
 LastEditors: recar
-LastEditTime: 2022-03-24 10:26:48
+LastEditTime: 2022-03-24 18:43:43
 '''
 
 from lib.log import logger
@@ -58,7 +58,8 @@ class General(Base):
                     "desc": "通用模块"
                 }
                 self.to_result(result)
-        self.general_work = Worker(consumer, consumer_count=10, block=self.block)        
+        self.general_work = Worker(consumer, consumer_count=10, block=self.block)
         for general_name in self.general_dict.keys():
             if general_name in open_plugins_list:
+                self.logger.debug("general plugins: {0}".format(general_name))
                 self.general_work.put((general_name, url))
