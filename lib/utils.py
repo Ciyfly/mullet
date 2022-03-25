@@ -4,7 +4,7 @@
 Author: Recar
 Date: 2021-06-28 22:40:10
 LastEditors: recar
-LastEditTime: 2022-03-21 14:25:04
+LastEditTime: 2022-03-25 10:34:34
 
 '''
 from lib.log import logger
@@ -137,8 +137,9 @@ class Utils(object):
     @staticmethod
     def banner():
         msg = "mullet v0.1"
-        sfw = True
-        s = milk_random_cow(msg, sfw=sfw)
+        # sfw = True
+        # s = milk_random_cow(msg, sfw=sfw)
+        s = "mullet"
         logger.info(s)
 
     @staticmethod

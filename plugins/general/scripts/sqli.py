@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-24 09:46:27
 LastEditors: recar
-LastEditTime: 2022-03-24 18:57:00
+LastEditTime: 2022-03-25 10:34:02
 '''
 from plugins.scan import Base
 import re
@@ -31,33 +31,31 @@ class Scan(Base):
         origin_url = url_info.get("origin_url")
         base_url = url_info.get("url").split("?")[0]
         method = url_info.get("method")
-        if method == "GET":
-            payload_query = ""
-            for payload in heuristic_payloads:
-                for q_d in query_dict.keys():
-                    tmp = "{0}={1}&".format(q_d, query_dict[q_d][0]+payload)
-                    payload_query +=tmp
-                payload_query = "&".join(payload_query.split("&")[0:-1])
+        payload_query = ""
+        for payload in heuristic_payloads:
+            for q_d in query_dict.keys():
+                tmp = "{0}={1}&".format(q_d, query_dict[q_d][0]+payload)
+                payload_query +=tmp
+            payload_query = "&".join(payload_query.split("&")[0:-1])
+            if method=="GET":
                 url = base_url+"?"+payload_query
-                response = self.request(url)
-                for check in self.error_str_list:
-                    regex = check.get("regex")
-                    match_type = check.get("type")
-                    regex_compile = re.compile(regex)
-                    match = regex_compile.findall(response.text)
-                    if len(match)>0:
-                        result = {
-                            "plugins": self.plugins_name,
-                            "url": origin_url,
-                            "payload": url,
-                            "desc": "数据库报错匹配: {0}".format(match_type)
-                        }
-                        self.print_result(result)
+            else: # post
+                url = base_url
+            response = self.request(url, method=method, data=payload_query)
+            for check in self.error_str_list:
+                regex = check.get("regex")
+                match_type = check.get("type")
+                regex_compile = re.compile(regex)
+                match = regex_compile.findall(response.text)
+                if len(match)>0:
+                    result = {
+                        "plugins": self.plugins_name,
+                        "url": origin_url,
+                        "payload": url,
+                        "desc": "数据库报错匹配: {0}".format(match_type)
+                    }
+                    self.print_result(result)
 
-        elif method == "POST":
-            self.logger.debug("post")
-        else:
-            self.logger.debug("method: {0}".format(method))
             
 
     def error_sqli(self):

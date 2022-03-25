@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-03-24 18:56:55
+LastEditTime: 2022-03-25 10:29:49
 '''
 from urllib.parse import unquote
 from urllib.parse import urlparse, parse_qs
@@ -40,9 +40,13 @@ class HTTPParser(object):
             url_info["path"] = parse_url.path
             url_info["params"] = parse_url.params
             url_info["query"] = parse_url.query
-            url_info["query_dict"] = parse_qs(parse_url.query)
-            url_info["host"] = flow.request.host
             url_info["method"] = flow.request.method
+            url_info["data"] = flow.request.data
+            if url_info["method"]=="GET":
+                url_info["query_dict"] = parse_qs(parse_url.query)
+            elif url_info["method"]=="POST":
+                url_info["query_dict"] = parse_qs(url_info["data"])
+            url_info["host"] = flow.request.host
             url_info["server_port"] = flow.server_conn.ip_address[1]
             url_info["server_ip"] = flow.server_conn.ip_address[0]
             if "https" in url:
