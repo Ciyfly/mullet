@@ -3,7 +3,7 @@
 '''
 Date: 2021-03-23 15:51:56
 LastEditors: recar
-LastEditTime: 2022-01-26 11:24:28
+LastEditTime: 2022-03-29 14:40:57
 '''
 from lib.http_parser import HTTPParser
 from lib.data import controller
@@ -25,6 +25,7 @@ class Filter(object):
         if not url_info:
             return
         logger.debug("[*] url: {0} type: {1}".format(url_info["url"], url_info['type']))
+        # 过滤白名单
         # insert url
         controller.run(url_info, req, rsp)
 

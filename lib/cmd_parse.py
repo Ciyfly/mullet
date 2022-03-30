@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 16:28:33
 LastEditors: recar
-LastEditTime: 2022-03-23 10:05:30
+LastEditTime: 2022-03-30 16:08:53
 '''
 from cmath import log
 from lib.data import controller
@@ -16,19 +16,22 @@ import os
 
 @click.command()
 @click.option('-s', 'server_addr', type=str, default="0.0.0.0:8686", help='listen server addr defalut 0.0.0.0:8686')
-@click.option('-v', '--verbose', count=True, help="use attack level")
+@click.option('-v', '--violent', is_flag=True, help="violent test")
 @click.option('-u', '--url', type=str, help="Do it directly without using proxy mode")
 @click.option('-f', '--url_file', type=str, help="scan target file")
 @click.option('-p', '--poc', type=str, help="run poc")
 @click.option('--debug/--no-debug', help="log level set debug default False")
-def cli(server_addr, verbose, url, url_file, poc, debug):
+def cli(server_addr, violent, url, url_file, poc, debug):
     # set log level
     if debug:
         logger.setLevel(logging.DEBUG)
+    # violent 强力测试模式
+    if violent:
+        logger.info("开启强力测试模式")
     # url
     urls = list()
     if url or url_file:
-        controller.init(block=False)
+        controller.init(block=False, violent=violent)
         # 主动扫描推任务到controller
         if url_file:
             if os.path.exists(url_file):
@@ -65,7 +68,7 @@ def cli(server_addr, verbose, url, url_file, poc, debug):
     else:
         logger.info("proxy")
         # 被动扫描
-        controller.init()
+        controller.init(violent=violent)
         addr, port = server_addr.split(":")
         proxy_run(addr, int(port))
 

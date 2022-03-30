@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-03-25 10:29:49
+LastEditTime: 2022-03-30 10:50:23
 '''
 from urllib.parse import unquote
 from urllib.parse import urlparse, parse_qs
@@ -41,7 +41,12 @@ class HTTPParser(object):
             url_info["params"] = parse_url.params
             url_info["query"] = parse_url.query
             url_info["method"] = flow.request.method
-            url_info["data"] = flow.request.data
+            url_info["data"] = flow.request.text
+            url_info["headers"] = flow.request.headers
+            url_info["json"] = False
+            req_type = flow.request.headers.get("Content-Type")
+            if "application/json"==req_type:
+                url_info["json"] = True
             if url_info["method"]=="GET":
                 url_info["query_dict"] = parse_qs(parse_url.query)
             elif url_info["method"]=="POST":
@@ -132,12 +137,10 @@ class HTTPParser(object):
         rsp["status_code"] = flow.response.status_code
         rsp["reason"] = flow.response.reason
         rsp["headers"] = flow.response.headers
-        rsp["text"] = str(flow.response.content)
+        rsp["text"] = str(flow.response.content.decode('utf-8', 'ignore'))
         rsp["timestamp_start"] = flow.response.timestamp_start
         rsp["timestamp_end"] = flow.response.timestamp_end
         return rsp
-
-
 
     @staticmethod
     def reqs_to_req(reqs):

@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-01-11 18:08:25
- * @LastEditors: Recar
- * @LastEditTime: 2022-02-10 22:03:06
+ * @LastEditors: recar
+ * @LastEditTime: 2022-03-28 18:26:28
 -->
 # mullet
 被动代理扫描器 梭鱼
@@ -31,3 +31,5 @@ xss检测
 命令注入  
 
 可以参考 https://github.com/chaitin/xray  
+
+通用漏洞靶场 https://github.com/Yavuzlar/VulnLab  

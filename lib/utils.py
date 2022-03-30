@@ -4,11 +4,12 @@
 Author: Recar
 Date: 2021-06-28 22:40:10
 LastEditors: recar
-LastEditTime: 2022-03-25 10:34:34
+LastEditTime: 2022-03-29 14:53:15
 
 '''
 from lib.log import logger
 from cowpy.cow import milk_random_cow
+from difflib import SequenceMatcher
 import urllib.parse
 import platform
 import string
@@ -18,6 +19,7 @@ import copy
 import uuid
 import time
 import os
+import re
 
 
 class Utils(object):
@@ -147,12 +149,24 @@ class Utils(object):
         return ''.join(random.sample(chars, length))
 
     @staticmethod
-    def gen_random_num(nums):
+    def gen_random_num(nums=4):
         return int(Utils.gen_random_str(length=int(nums), chars=string.digits))
 
     @staticmethod
     def gen_current_time_str():
         return time.strftime('%Y_%m_%d_%H_%M',time.localtime(time.time()))
+
+    @staticmethod
+    def similarity(a, b):
+        return SequenceMatcher(None, a, b).ratio()
+
+    @staticmethod
+    def remove_html_tag(html):
+        dr = re.compile(r'<[^>]+>',re.S)
+        dd = dr.sub('',html)
+        dd = dd.replace('/r/n', '').replace('/n', '')
+        # return dd
+        return html
 
     @staticmethod
     def get_random_ua():

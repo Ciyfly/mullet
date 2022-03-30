@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-24 18:42:50
+LastEditTime: 2022-03-30 16:07:58
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -14,7 +14,6 @@ from plugins.poc.poc_scan import PocScan
 from lib.log import logger
 import configparser
 import time
-import copy
 import sys
 import os
 
@@ -47,13 +46,17 @@ class Controller(object):
         self.switch_poc = conf.getboolean('switch', 'poc')
         # 通用插件的开启列表
         self.switch_general_list = conf.get('switch_general', 'list').split(",")
+        # 白名单
+        self.white_list = conf.get('white_list', 'list').split(",")
 
-    def init(self, block=True):
+    def init(self, block=True, violent=False):
         self.logger.debug("Controller Init ")
         # 启动报告模块
         self.report = Report()
         # 阻塞状态 True的话是被动代理 False的话是主动扫描
         self.block = block
+        # 是否开启强力模式
+        self.violent=violent
         # 报告
         self.report_work = self.report.report_work
         # 指纹
@@ -83,6 +86,10 @@ class Controller(object):
 
     # 入口分发任务
     def run(self, url_info, req, rsp):
+        # 这里忽略白名单
+        for domain in self.white_list:
+            if domain in url_info.get('origin_url'):
+                return
         domain =  url_info.get('host')
         gener_url = url_info.get("gener_url")
         self.logger.debug("block: {0}".format(self.block))
@@ -104,7 +111,7 @@ class Controller(object):
             # 推通用插件
             if self.switch_general:
                 self.logger.debug("switch_general")
-                self.general_plugins_handler.run(url_info, req, rsp, self.switch_general_list)
+                self.general_plugins_handler.run(url_info, req, rsp, self.switch_general_list, violent=self.violent)
         # 主动扫描的话阻塞任务
         if not self.block:
             if self.switch_fingerprint:
