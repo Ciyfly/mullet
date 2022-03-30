@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-24 09:46:27
 LastEditors: recar
-LastEditTime: 2022-03-30 15:57:08
+LastEditTime: 2022-03-30 16:37:36
 '''
 from plugins.scan import Base
 import xml.etree.ElementTree as ET
@@ -154,6 +154,7 @@ class Scan(Base):
                     # 存储数据库类型
                     self.sqli_info["dbms"] = match_type
                     self.print_result(result)
+                    self.to_result(result)
                     return 
 
     def _handle_tag(self, s, error=False):
