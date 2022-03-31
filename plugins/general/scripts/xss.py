@@ -3,13 +3,13 @@
 '''
 Date: 2022-03-30 16:12:12
 LastEditors: recar
-LastEditTime: 2022-03-31 16:15:21
+LastEditTime: 2022-03-31 17:11:58
 '''
 
 
 from plugins.scan import Base
 from lib.utils import Utils
-from lib.html_parse import SearchInputInResponse, random_upper
+from lib.html_parser import SearchInputInResponse, random_upper
 from lib.jscontext import SearchInputInScript
 from lib.http_parser import HTTPParser
 import json
@@ -200,7 +200,6 @@ class Scan(Base):
         xss 检测
         
         '''
-
         echo_query_list = self.test_echo(url_info)
         if len(echo_query_list)==0:
             return 

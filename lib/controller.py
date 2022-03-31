@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-30 16:07:58
+LastEditTime: 2022-03-31 17:13:08
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -66,10 +66,9 @@ class Controller(object):
         if self.switch_sensitive_info:
             self.sensitiveInfo_handler = SensitiveInfo(self.report_work, block=self.block)
         # 通用检测模块
-        self.logger.info("block: {0}".format(self.block))
-        if self.block:
-            if self.switch_general:
-                self.general_plugins_handler = General(self.report_work, block=self.block)
+        # if self.block:
+        if self.switch_general:
+            self.general_plugins_handler = General(self.report_work, block=self.block)
         # poc 模块
         if self.switch_poc:
             self.poc_handler = PocScan(self.report_work, block=self.block)
@@ -105,7 +104,8 @@ class Controller(object):
                 self.logger.debug("sensitiveInfo")
                 self.sensitiveInfo_handler.run(url_info, req, rsp)
         # 被动代理模式才用通用插件
-        if self.block and gener_url not in self.urls:
+        # if self.block and gener_url not in self.urls:
+        if  gener_url not in self.urls:
             self.logger.debug("general")
             self.urls[gener_url]=""
             # 推通用插件
@@ -120,7 +120,9 @@ class Controller(object):
             if self.switch_sensitive_info:                    
                 while not self.sensitiveInfo_handler.seninfo_work.is_end():
                     time.sleep(3)
-
+            if self.switch_general:                    
+                while not self.general_plugins_handler.general_work.is_end():
+                    time.sleep(3)
             # poc这里要按指纹来跑
             if self.switch_poc:
                 for result_info in self.report.result_list:
