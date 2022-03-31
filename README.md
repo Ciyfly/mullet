@@ -1,35 +1,67 @@
 <!--
  * @Date: 2022-01-11 18:08:25
  * @LastEditors: recar
- * @LastEditTime: 2022-03-28 18:26:28
+ * @LastEditTime: 2022-03-31 17:40:20
 -->
 # mullet
-被动代理扫描器 梭鱼
+扫描器 梭鱼  
+支持主动 被动扫描的方式  
+
+被动通过 mitm 支持 所以需要安装证书  
+`安装证书 代理开启后访问 http://mitm.it/`  
+
+poc是跟指纹关联的 指纹匹配了才会发对应的poc  
+
+## 使用
+
+### 主动扫描
+
+`python main.py -u "http://192.168.19.144:8080/level1.php?name=asdasdasd"`  
+
+![avatar](imgs/主动扫描.jpg)
+
+### 被动扫描
+
+默认监听`8686` 端口  
+`python main.py`
+
+## api
+支持 web 的api形式 创建扫描 默认监听`8787`端口
+api 会先随机生成token api需要携带toekn参数才能创建任务  
+
+server `python api.py`  
+client   
+```shell
+curl -X POST \
+  http://192.168.19.144:8787/scan/ \
+  -H 'content-type: application/json' \
+  -d '{
+	"url":"http://192.168.19.144:8080/level1.php?name=asdasdasd",
+	"token": "ncsgaqvuliehomfk"
+}'
+```
+
+![avatar](imgs/api.jpg)
 
 
-代理模块  
-url去重模块  
-任务分发模块 多生产者多消费者模块 多队列形式  
-指纹识别模块  
-poc通用模块  
-通用检测模块  
-漏洞报告模块  
-日志模块 日志要酷炫  
-参数控制模块  
+## 检测
+通用检测  
 
-一个流程:  
-指纹识别->分析出是啥指纹后增加poc任务
-敏感目录备份文件等扫描
-上面一个url就可以添加出来任务了
+- sqli
+- xss
+- jsonp
 
-然后代理访问开始后或者后续流量有url的就交给url识别  
-安装证书 代理开启后访问 http://mitm.it/  
+指纹
 
-通用检测插件还有哪些要做的 列个计划去做  
-sql注入    
-xss检测    
-命令注入  
+- shiro
+- struts2
+- thinkphp
 
-可以参考 https://github.com/chaitin/xray  
+poc 
 
-通用漏洞靶场 https://github.com/Yavuzlar/VulnLab  
+- shiro_default_key
+- spring CVE-2022-22947
+- s2_061
+- s2_059
+- s2_057
+- ThinkPHP5_5_0_22
