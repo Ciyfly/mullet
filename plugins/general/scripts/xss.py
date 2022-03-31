@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-30 16:12:12
 LastEditors: recar
-LastEditTime: 2022-03-31 16:13:49
+LastEditTime: 2022-03-31 16:15:21
 '''
 
 
@@ -14,6 +14,8 @@ from lib.jscontext import SearchInputInScript
 from lib.http_parser import HTTPParser
 import json
 import copy
+
+# copy https://github.com/w-digital-scanner/w13scan/blob/master/W13SCAN/scanners/PerFile/xss.py
 
 '''
 ## 位置与payload需要的字符串
@@ -196,7 +198,7 @@ class Scan(Base):
     def verify(self, url_info, req, rsp, violent=False):
         '''
         xss 检测
-        copy https://github.com/w-digital-scanner/w13scan/blob/master/W13SCAN/scanners/PerFile/xss.py
+        
         '''
 
         echo_query_list = self.test_echo(url_info)
