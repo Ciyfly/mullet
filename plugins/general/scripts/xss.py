@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-30 16:12:12
 LastEditors: recar
-LastEditTime: 2022-03-31 15:43:08
+LastEditTime: 2022-03-31 16:13:49
 '''
 
 
@@ -222,7 +222,7 @@ class Scan(Base):
                                 "plugins": self.plugins_name,
                                 "url": url_info.get("origin_url"),
                                 "req": HTTPParser.rsp_to_reqtext(response),
-                                "payload": echo_query+"="+payload,
+                                "payload": echo_query+"="+expression(alert(1)),
                                 "desc": "可能存在xss E下可执行的表达式 expression(alert(1))"
                                 }
                                 self.print_result(result)
@@ -239,7 +239,7 @@ class Scan(Base):
                                 "plugins": self.plugins_name,
                                 "url": url_info.get("origin_url"),
                                 "req": HTTPParser.rsp_to_reqtext(response),
-                                "payload": echo_query+"="+payload,
+                                "payload": echo_query+"="+truepayload,
                                 "desc": "html标签可被闭合: {0}".format(truepayload)
                                 }
                                 self.print_result(result)
@@ -259,7 +259,7 @@ class Scan(Base):
                                 "plugins": self.plugins_name,
                                 "url": url_info.get("origin_url"),
                                 "req": HTTPParser.rsp_to_reqtext(response),
-                                "payload": echo_query+"="+payload,
+                                "payload": echo_query+"="+truepayload,
                                 "desc": "html标签可被闭合: {0}".format(truepayload)
                                 }
                                 self.print_result(result)
@@ -277,7 +277,7 @@ class Scan(Base):
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
                                     "req": HTTPParser.rsp_to_reqtext(response),
-                                    "payload": echo_query+"="+payload,
+                                    "payload": echo_query+"="+"'onmouseover=prompt(1)'",
                                     "desc": "可以自定义类似 'onmouseover=prompt(1)'的标签事件"
                                     }
                                     self.print_result(result)
@@ -298,7 +298,7 @@ class Scan(Base):
                                         "plugins": self.plugins_name,
                                         "url": url_info.get("origin_url"),
                                         "req": HTTPParser.rsp_to_reqtext(response),
-                                        "payload": echo_query+"="+payload,
+                                        "payload": echo_query+"="+truepayload,
                                         "desc": "引号可被闭合，可使用其他事件造成xss: {0}".format(truepayload)
                                         }
                                         self.print_result(result)
@@ -315,7 +315,7 @@ class Scan(Base):
                                     result = {
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
-                                    "req": HTTPParser.rsp_to_reqtext(response),
+                                    "req": HTTPParser.rsp_to_reqtext(_payload.format("svg onload=alert`1`")),
                                     "payload": echo_query+"="+payload,
                                     "desc": "html标签可被闭合: {0}".format(_payload.format("svg onload=alert`1`"))
                                     }
@@ -341,7 +341,7 @@ class Scan(Base):
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
                                     "req": HTTPParser.rsp_to_reqtext(response),
-                                    "payload": echo_query+"="+payload,
+                                    "payload": echo_query+"="+truepayload,
                                     "desc": "{0}的值可控，可能被恶意攻击,payload:{1}".format(keyname, truepayload)
                                     }
                                     self.print_result(result)
@@ -358,7 +358,7 @@ class Scan(Base):
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
                                     "req": HTTPParser.rsp_to_reqtext(response),
-                                    "payload": echo_query+"="+payload,
+                                    "payload": echo_query+"="+"expression(alert(1))",
                                     "desc": "IE下可执行的表达式 payload:expression(alert(1))"
                                     }
                                     self.print_result(result)
@@ -396,7 +396,7 @@ class Scan(Base):
                                 "plugins": self.plugins_name,
                                 "url": url_info.get("origin_url"),
                                 "req": HTTPParser.rsp_to_reqtext(response),
-                                "payload": echo_query+"="+payload,
+                                "payload": echo_query+"="+truepayload,
                                 "desc": "html注释可被闭合 测试payload:{0}".format(truepayload)
                                 }
                                 self.print_result(result)
@@ -421,7 +421,7 @@ class Scan(Base):
                             "plugins": self.plugins_name,
                             "url": url_info.get("origin_url"),
                             "req": HTTPParser.rsp_to_reqtext(response),
-                            "payload": echo_query+"="+payload,
+                            "payload": echo_query+"="+truepayload,
                             "desc": "可以新建script标签执行任意代码 测试payload:{0}".format(truepayload)
                             }
                             self.print_result(result)
@@ -451,7 +451,7 @@ class Scan(Base):
                                         "plugins": self.plugins_name,
                                         "url": url_info.get("origin_url"),
                                         "req": HTTPParser.rsp_to_reqtext(response),
-                                        "payload": echo_query+"="+payload,
+                                        "payload": echo_query+"="+"\\n",
                                         "desc": "js单行注释可被\\n bypass"
                                         }
                                         self.print_result(result)
@@ -475,7 +475,7 @@ class Scan(Base):
                                         "plugins": self.plugins_name,
                                         "url": url_info.get("origin_url"),
                                         "req": HTTPParser.rsp_to_reqtext(response),
-                                        "payload": echo_query+"="+payload,
+                                        "payload": echo_query+"="+"\\n",
                                         "desc": "js单行注释可被\\n bypass"
                                         }
                                         self.print_result(result)
@@ -486,7 +486,7 @@ class Scan(Base):
                             "plugins": self.plugins_name,
                             "url": url_info.get("origin_url"),
                             "req": HTTPParser.rsp_to_reqtext(response),
-                            "payload": echo_query+"="+payload,
+                            "payload": echo_query+"="+"prompt(1);",
                             "desc": "ScriptIdentifier类型 测试payload：prompt(1);"
                             }
                             self.print_result(result)
@@ -512,7 +512,6 @@ class Scan(Base):
                             if not resp2:
                                 continue
                             output = SearchInputInScript(flag, resp2)
-
                             if output:
                                 for _output in output:
                                     if flag in _output["details"]["content"] and _output[
@@ -521,6 +520,6 @@ class Scan(Base):
                                         "plugins": self.plugins_name,
                                         "url": url_info.get("origin_url"),
                                         "req": HTTPParser.rsp_to_reqtext(response),
-                                        "payload": echo_query+"="+payload,
+                                        "payload": echo_query+"="+truepayload,
                                         "desc": "script脚本内容可被任意设置 测试payload:{0}".format(truepayload)
                                         }

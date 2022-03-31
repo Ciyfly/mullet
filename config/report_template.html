@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-01-13 14:29:48
  * @LastEditors: recar
- * @LastEditTime: 2022-03-30 15:08:57
+ * @LastEditTime: 2022-03-31 16:10:30
 -->
 <html>
     <head>
@@ -67,14 +67,13 @@
                 {% for item in items %}
                 <tr>
                     <td>{{item.plugins}}</td>
-                    <td>{{item.payload}}</td>
+                    <td><xmp>{{item.payload}}</xmp></td>
                     <td>{{item.url}}</td>
-                    <td>{{item.desc}}</td>
-                    <td><pre>{{item.req.raw}}</pre></td>
+                    <td><xmp>{{item.desc}}</xmp></td>
+                    <td><pre>{{item.req}}</pre></td>
                     <td><pre>{{item.rsp}}</pre></td>
                 </tr>
                 {% endfor %}
-                </tr>
             </tbody>
         </table>
     </body>

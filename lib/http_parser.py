@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-03-31 15:21:21
+LastEditTime: 2022-03-31 16:05:26
 '''
 from urllib.parse import unquote
 from urllib.parse import urlparse, parse_qs
@@ -154,7 +154,8 @@ class HTTPParser(object):
         for k, v in req.headers.items():
             req_data += k + ': ' + v + '\r\n'
         req_data += '\r\n'
-        req_data += str(req.body)
+        if req.body:
+            req_data += str(req.body)
         return req_data
 
     @staticmethod
