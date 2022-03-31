@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-24 09:46:27
 LastEditors: recar
-LastEditTime: 2022-03-30 16:37:36
+LastEditTime: 2022-03-31 12:29:49
 '''
 from plugins.scan import Base
 import xml.etree.ElementTree as ET
@@ -155,7 +155,7 @@ class Scan(Base):
                     self.sqli_info["dbms"] = match_type
                     self.print_result(result)
                     self.to_result(result)
-                    return 
+                    return
 
     def _handle_tag(self, s, error=False):
         if s is None or s=="":
@@ -413,7 +413,7 @@ class Scan(Base):
         '''
         query_dict = url_info.get("query_dict")
         if query_dict is None:
-            return False, ""
+            return
         # 启发式报错看报错信息输出是否有数据库类型
         self.heuristic(url_info)
         # 尝试闭合 获取前后缀
@@ -421,20 +421,19 @@ class Scan(Base):
         # 根据数据库信息加载payload
         # 如果开启下面会发大量的payload
         if not violent:
-            return False, ""
+            return
         self.logger.debug("find boundarie: {0}".format(len(self.sqli_info.get("boundaries"))))
         self.logger.debug(" star violent sqli test")
         self.update_payload()
         # 报错注入
         error_status = self.error_sqli(url_info)
         if error_status:
-            return False, ""
+            return
         # bool盲注
         bool_status = self.bool_blind(url_info)
         if bool_status:
-            return False, ""        
+            return
         # 时间盲注
         time_status = self.time_blind(url_info)
         if time_status:
-            return False, ""            
-        return False, ""
+            return

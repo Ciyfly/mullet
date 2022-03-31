@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-18 18:23:19
 LastEditors: recar
-LastEditTime: 2022-03-30 16:05:01
+LastEditTime: 2022-03-31 12:29:05
 '''
 
 from lib.log import logger
@@ -48,16 +48,7 @@ class General(Base):
         def consumer(data):
             general_name, url = data
             general_plugins = copy.copy(self.general_dict.get(general_name))
-            match, result = general_plugins.verify(url_info, req, rsp, violent=violent)
-            if match:
-                result = {
-                    "plugins": self.plugins_name,
-                    "payload": result,
-                    "url": url,
-                    "url_info": url_info,
-                    "desc": "通用模块"
-                }
-                self.to_result(result)
+            general_plugins.verify(url_info, req, rsp, violent=violent)
         self.general_work = Worker(consumer, consumer_count=10, block=self.block)
         for general_name in self.general_dict.keys():
             if general_name in open_plugins_list:

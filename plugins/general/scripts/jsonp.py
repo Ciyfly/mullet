@@ -3,7 +3,7 @@
 '''
 Date: 2021-06-25 17:42:42
 LastEditors: recar
-LastEditTime: 2022-03-30 15:57:18
+LastEditTime: 2022-03-31 12:30:16
 '''
 import js2py
 import re
@@ -54,17 +54,17 @@ class Scan(Base):
         rsp_text = rsp.get('text',"")
         all_maps = dict()
         if not self.has_callback(url):
-            return False, []
+            return
         try:
             self.logger.debug("hased callbak")
             tree = self.esprima.parse(rsp_text)
         except Exception:
-            return False, []
+            return
         tree_json = tree.to_dict()
         self.logger.debug(tree_json)
         body = tree_json['body']
         if not body:
-            return False, []
+            return
         for expression in body:
             expression = expression.get('expression')
             if not expression:
