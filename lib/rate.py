@@ -3,13 +3,14 @@
 '''
 Date: 2022-03-24 10:44:11
 LastEditors: recar
-LastEditTime: 2022-03-29 14:31:58
+LastEditTime: 2022-03-31 14:31:51
 '''
 from ratelimiter import RateLimiter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
  
 from lib.log import logger
 import configparser
+import traceback
 import requests
 import os
 
@@ -39,5 +40,5 @@ def rate_request(
             cookies=cookies, timeout=timeout)
         return response
     except :
-        # logger.error(traceback.format_exc())
+        logger.error(traceback.format_exc())
         return requests.Response()

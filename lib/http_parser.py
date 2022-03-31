@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-03-30 10:50:23
+LastEditTime: 2022-03-31 15:21:21
 '''
 from urllib.parse import unquote
 from urllib.parse import urlparse, parse_qs
@@ -56,10 +56,10 @@ class HTTPParser(object):
             url_info["server_ip"] = flow.server_conn.ip_address[0]
             if "https" in url:
                 url_info["ssl"] = True
-                url_info["base_url"] = "https://{0}".format(url_info["host"])
+                url_info["base_url"] = "https://{0}:{1}".format(url_info["server_ip"], url_info["server_port"])
             else:
                 url_info["ssl"] = False
-                url_info["base_url"] = "http://{0}".format(url_info["host"])
+                url_info["base_url"] = "http://{0}:{1}".format(url_info["server_ip"], url_info["server_port"])
 
 
         return url_info
@@ -143,36 +143,26 @@ class HTTPParser(object):
         return rsp
 
     @staticmethod
-    def reqs_to_req(reqs):
+    def rsp_to_reqtext(rsp):
         http_version_map = {
             10: "HTTP/1.0",
             11: "HTTP/1.1"
         }
-        def raw(reqs):
-            req_data = '%s %s %s\r\n' % (str(reqs.method), str(reqs.path_url), str(http_version_map[reqs.raw.version]))
-            # Add headers to the request
-            for k, v in reqs.headers.items():
-                req_data += k + ': ' + v + '\r\n'
-            req_data += '\r\n'
-            req_data += str(reqs.raw_content)
-            return req_data
-        req = dict()
-        req["url"] = reqs.url
-        req["method"] = reqs.method
-        req["scheme"] = reqs.scheme
-        req["path"] = reqs.path_url
-        req["http_version"] = http_version_map[reqs.raw.version]
-        req["headers"] = reqs.headers
-        req["text"] = str(reqs.body)
-        req["raw"] = raw(reqs)
-        return req
+        req = rsp.request
+        req_data = '%s %s %s\r\n' % (str(req.method), str(req.path_url), str(http_version_map[rsp.raw.version]))
+        # Add headers to the request
+        for k, v in req.headers.items():
+            req_data += k + ': ' + v + '\r\n'
+        req_data += '\r\n'
+        req_data += str(req.body)
+        return req_data
 
     @staticmethod
-    def rsps_to_rsp(rsps):
+    def rsp_to_text(rsp):
         rsp = dict()
-        rsp["status_code"] = rsps.status_code
-        rsp["headers"] = rsps.headers
-        rsp["text"] = str(rsps.text)
+        rsp["status_code"] = rsp.status_code
+        rsp["headers"] = rsp.headers
+        rsp["text"] = str(rsp.text)
         return rsp
 
     @staticmethod

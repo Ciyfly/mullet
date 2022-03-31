@@ -3,14 +3,17 @@
 '''
 Date: 2022-03-30 16:12:12
 LastEditors: recar
-LastEditTime: 2022-03-31 12:29:13
+LastEditTime: 2022-03-31 15:43:08
 '''
+
 
 from plugins.scan import Base
 from lib.utils import Utils
 from lib.html_parse import SearchInputInResponse, random_upper
 from lib.jscontext import SearchInputInScript
+from lib.http_parser import HTTPParser
 import json
+import copy
 
 '''
 ## 位置与payload需要的字符串
@@ -99,24 +102,34 @@ class Scan(Base):
 
     def test_echo(self, url_info):
         echo_query_list = list()
-        query_dict = url_info.get("query_dict")
+        query_dict = copy.copy(url_info.get("query_dict"))
         headers = url_info.get("headers")
         method = url_info.get("method")
         base_url = url_info.get("base_url")
-        if query_dict is None:
-            return []
+        origin_url = url_info.get("origin_url")
         # 混合测试的参数
-        query_list = query_dict.keys()+BLIND_PARAMS
+        query_list = list(query_dict.keys())+BLIND_PARAMS
         for query in query_list:
             query_dict[query] = Utils.gen_random_str()
         #url
+        data = None
         if method=="GET":
             fix_query_str = ""
             for key,value in query_dict.items():
                 fix_query_str += key + "=" + value+"&"
             if fix_query_str.endswith("&"):
                 fix_query_str = fix_query_str[:-1]
-            url = base_url+"?"+ fix_query_str
+            if "?" in origin_url:
+                origin_query  = origin_url.split("?")[-1]
+                url = origin_url.replace(origin_query, fix_query_str)
+            else:
+                # 隐藏参数
+                finx_query_str = "?"
+                for query in query_dict:
+                    finx_query_str += query + "=" + query_dict[query][0]+"&"
+                if finx_query_str.endswith("&"):
+                    finx_query_str = finx_query_str[:-1]
+                url = origin_url+"?"+finx_query_str
         else: # post
             url = base_url
             if url_info.get("json"):
@@ -131,14 +144,16 @@ class Scan(Base):
                     data = data[:-1]
         # 发送请求
         response = self.request(url, method=method, data=data, headers=headers, timeout=10)
-        for key, value in query.items():
+        for key, value in query_dict.items():
             if value in response.text:
+                self.logger.debug("find echo key: {0}".format(key))
                 locations = SearchInputInResponse( value, response.text)
+                self.logger.debug("locations: {0}".format(locations))
                 if locations:
                     echo_query_list.append({
-                        "query": key,
+                        "key": key,
                         "value": value,
-                        "location": locations
+                        "locations": locations
                     })
         return echo_query_list
 
@@ -149,11 +164,24 @@ class Scan(Base):
         method = url_info.get("method")
         base_url = url_info.get("base_url")
         origin_url = url_info.get("origin_url")
-        origin_query = echo_query+"="+query_dict[echo_query][0]
-        payload_query = echo_query+"="+payload
+        if echo_query in query_dict.keys():
+            origin_query = echo_query+"="+query_dict[echo_query][0]
+            payload_query = echo_query+"="+payload
+        else:
+            # 隐藏参数
+            origin_query = ""
+            for query in query_dict:
+                origin_query += query + "=" + query_dict[query][0]+"&"
+            if origin_query.endswith("&"):
+                origin_query = origin_query[:-1]
+            payload_query = origin_query+"&"+echo_query+"="+payload
+        self.logger.debug("origin_url: {0}".format(origin_url))
+        self.logger.debug("origin_query: {0}".format(origin_query))
+        self.logger.debug("payload_query: {0}".format(payload_query))
         #url
         if method=="GET":
             url = origin_url.replace(origin_query, payload_query)
+            self.logger.debug("url: {0}".format(url))
         else: # post
             url = base_url
             if url_info.get("json"):
@@ -172,11 +200,11 @@ class Scan(Base):
         '''
 
         echo_query_list = self.test_echo(url_info)
-        if echo_query_list==0:
-            return False, ""
+        if len(echo_query_list)==0:
+            return 
         for echo_query_info in echo_query_list:
             locations = echo_query_info.get('locations')
-            echo_query = echo_query_info.get("key"),
+            echo_query = echo_query_info.get("key")
             xsschecker = echo_query_info.get('value')
             if not locations:
                 continue
@@ -193,9 +221,8 @@ class Scan(Base):
                                 result = {
                                 "plugins": self.plugins_name,
                                 "url": url_info.get("origin_url"),
-                                "req": response.request,
-                                "rsp": response,
-                                "payload": payload,
+                                "req": HTTPParser.rsp_to_reqtext(response),
+                                "payload": echo_query+"="+payload,
                                 "desc": "可能存在xss E下可执行的表达式 expression(alert(1))"
                                 }
                                 self.print_result(result)
@@ -211,9 +238,8 @@ class Scan(Base):
                                 result = {
                                 "plugins": self.plugins_name,
                                 "url": url_info.get("origin_url"),
-                                "req": response.request,
-                                "rsp": response,
-                                "payload": payload,
+                                "req": HTTPParser.rsp_to_reqtext(response),
+                                "payload": echo_query+"="+payload,
                                 "desc": "html标签可被闭合: {0}".format(truepayload)
                                 }
                                 self.print_result(result)
@@ -232,9 +258,8 @@ class Scan(Base):
                                 result = {
                                 "plugins": self.plugins_name,
                                 "url": url_info.get("origin_url"),
-                                "req": response.request,
-                                "rsp": response,
-                                "payload": payload,
+                                "req": HTTPParser.rsp_to_reqtext(response),
+                                "payload": echo_query+"="+payload,
                                 "desc": "html标签可被闭合: {0}".format(truepayload)
                                 }
                                 self.print_result(result)
@@ -251,9 +276,8 @@ class Scan(Base):
                                     result = {
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
-                                    "req": response.request,
-                                    "rsp": response,
-                                    "payload": payload,
+                                    "req": HTTPParser.rsp_to_reqtext(response),
+                                    "payload": echo_query+"="+payload,
                                     "desc": "可以自定义类似 'onmouseover=prompt(1)'的标签事件"
                                     }
                                     self.print_result(result)
@@ -273,9 +297,8 @@ class Scan(Base):
                                         result = {
                                         "plugins": self.plugins_name,
                                         "url": url_info.get("origin_url"),
-                                        "req": response.request,
-                                        "rsp": response,
-                                        "payload": payload,
+                                        "req": HTTPParser.rsp_to_reqtext(response),
+                                        "payload": echo_query+"="+payload,
                                         "desc": "引号可被闭合，可使用其他事件造成xss: {0}".format(truepayload)
                                         }
                                         self.print_result(result)
@@ -292,9 +315,8 @@ class Scan(Base):
                                     result = {
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
-                                    "req": response.request,
-                                    "rsp": response,
-                                    "payload": payload,
+                                    "req": HTTPParser.rsp_to_reqtext(response),
+                                    "payload": echo_query+"="+payload,
                                     "desc": "html标签可被闭合: {0}".format(_payload.format("svg onload=alert`1`"))
                                     }
                                     self.print_result(result)
@@ -318,9 +340,8 @@ class Scan(Base):
                                     result = {
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
-                                    "req": response.request,
-                                    "rsp": response,
-                                    "payload": payload,
+                                    "req": HTTPParser.rsp_to_reqtext(response),
+                                    "payload": echo_query+"="+payload,
                                     "desc": "{0}的值可控，可能被恶意攻击,payload:{1}".format(keyname, truepayload)
                                     }
                                     self.print_result(result)
@@ -336,9 +357,8 @@ class Scan(Base):
                                     result = {
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
-                                    "req": response.request,
-                                    "rsp": response,
-                                    "payload": payload,
+                                    "req": HTTPParser.rsp_to_reqtext(response),
+                                    "payload": echo_query+"="+payload,
                                     "desc": "IE下可执行的表达式 payload:expression(alert(1))"
                                     }
                                     self.print_result(result)
@@ -356,9 +376,8 @@ class Scan(Base):
                                     result = {
                                     "plugins": self.plugins_name,
                                     "url": url_info.get("origin_url"),
-                                    "req": response.request,
-                                    "rsp": response,
-                                    "payload": payload,
+                                    "req": HTTPParser.rsp_to_reqtext(response),
+                                    "payload": echo_query+"="+payload,
                                     "desc": "{0}的值可控，可能被恶意攻击".format(keyname)
                                     }
                                     self.print_result(result)
@@ -376,9 +395,8 @@ class Scan(Base):
                                 result = {
                                 "plugins": self.plugins_name,
                                 "url": url_info.get("origin_url"),
-                                "req": response.request,
-                                "rsp": response,
-                                "payload": payload,
+                                "req": HTTPParser.rsp_to_reqtext(response),
+                                "payload": echo_query+"="+payload,
                                 "desc": "html注释可被闭合 测试payload:{0}".format(truepayload)
                                 }
                                 self.print_result(result)
@@ -402,9 +420,8 @@ class Scan(Base):
                             result = {
                             "plugins": self.plugins_name,
                             "url": url_info.get("origin_url"),
-                            "req": response.request,
-                            "rsp": response,
-                            "payload": payload,
+                            "req": HTTPParser.rsp_to_reqtext(response),
+                            "payload": echo_query+"="+payload,
                             "desc": "可以新建script标签执行任意代码 测试payload:{0}".format(truepayload)
                             }
                             self.print_result(result)
@@ -433,9 +450,8 @@ class Scan(Base):
                                         result = {
                                         "plugins": self.plugins_name,
                                         "url": url_info.get("origin_url"),
-                                        "req": response.request,
-                                        "rsp": response,
-                                        "payload": payload,
+                                        "req": HTTPParser.rsp_to_reqtext(response),
+                                        "payload": echo_query+"="+payload,
                                         "desc": "js单行注释可被\\n bypass"
                                         }
                                         self.print_result(result)
@@ -458,9 +474,8 @@ class Scan(Base):
                                         result = {
                                         "plugins": self.plugins_name,
                                         "url": url_info.get("origin_url"),
-                                        "req": response.request,
-                                        "rsp": response,
-                                        "payload": payload,
+                                        "req": HTTPParser.rsp_to_reqtext(response),
+                                        "payload": echo_query+"="+payload,
                                         "desc": "js单行注释可被\\n bypass"
                                         }
                                         self.print_result(result)
@@ -470,9 +485,8 @@ class Scan(Base):
                             result = {
                             "plugins": self.plugins_name,
                             "url": url_info.get("origin_url"),
-                            "req": response.request,
-                            "rsp": response,
-                            "payload": payload,
+                            "req": HTTPParser.rsp_to_reqtext(response),
+                            "payload": echo_query+"="+payload,
                             "desc": "ScriptIdentifier类型 测试payload：prompt(1);"
                             }
                             self.print_result(result)
@@ -506,8 +520,7 @@ class Scan(Base):
                                         result = {
                                         "plugins": self.plugins_name,
                                         "url": url_info.get("origin_url"),
-                                        "req": response.request,
-                                        "rsp": response,
-                                        "payload": payload,
+                                        "req": HTTPParser.rsp_to_reqtext(response),
+                                        "payload": echo_query+"="+payload,
                                         "desc": "script脚本内容可被任意设置 测试payload:{0}".format(truepayload)
                                         }

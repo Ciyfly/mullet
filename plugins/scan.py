@@ -3,12 +3,13 @@
 '''
 Date: 2022-01-12 10:07:56
 LastEditors: recar
-LastEditTime: 2022-03-24 17:31:33
+LastEditTime: 2022-03-31 15:22:26
 '''
 from lib.log import logger
 from lib.utils import Utils
 from lib.work import ResultInfo
 from lib.rate import rate_request
+from lib.http_parser import HTTPParser
 import json
 import os
 
