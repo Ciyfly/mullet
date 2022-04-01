@@ -3,7 +3,7 @@
 '''
 Date: 2020-04-20 13:52:29
 LastEditors: recar
-LastEditTime: 2022-01-12 17:52:44
+LastEditTime: 2022-04-01 14:51:14
 '''
 #!/usr/bin/python
 # coding=UTF-8
@@ -33,7 +33,7 @@ def get_logger(console=True, log_file=None, level=logging.INFO, maxBytes=200*102
         ch.setFormatter(formatter)
         # 添加两个Handler
         # logger.addHandler(ch)
-        logger.addHandler(RichHandler())
+        logger.addHandler(RichHandler(show_path=False))
     return logger
 
 

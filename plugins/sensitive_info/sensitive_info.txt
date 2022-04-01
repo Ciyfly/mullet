@@ -23,6 +23,8 @@
 # /metrics
 # /trace
 
+# fastapi            {status=200}     {match="FastAPI"}
+
 # php
 /index.php.bak            {status=206}      {type="application/"}           {match="<?php"}
 /.index.php.swp            {status=206}      {type="application/"}           {match="<?php"}

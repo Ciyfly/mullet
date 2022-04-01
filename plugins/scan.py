@@ -3,13 +3,13 @@
 '''
 Date: 2022-01-12 10:07:56
 LastEditors: recar
-LastEditTime: 2022-03-31 15:22:26
+LastEditTime: 2022-04-01 15:08:04
 '''
 from lib.log import logger
 from lib.utils import Utils
 from lib.work import ResultInfo
 from lib.rate import rate_request
-from lib.http_parser import HTTPParser
+from rich import print_json
 import json
 import os
 
@@ -23,7 +23,8 @@ class Base(object):
         self.request = rate_request
         
     def print_result(self, result):
-        self.logger.info(json.dumps(result, sort_keys=True, indent=4, separators=(',', ':'), ensure_ascii=False))
+        self.logger.info("find: {0}".format(result.get('plugins')))
+        print_json(json.dumps(result, sort_keys=True, indent=4, separators=(',', ':'), ensure_ascii=False))
 
     def to_result(self, result):
         plugins = result.get("plugins", "")

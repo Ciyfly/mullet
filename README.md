@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-01-11 18:08:25
  * @LastEditors: recar
- * @LastEditTime: 2022-03-31 18:02:24
+ * @LastEditTime: 2022-04-01 14:24:50
 -->
 # mullet
 扫描器 梭鱼  
@@ -55,6 +55,8 @@ curl -X POST \
 - jsonp
 
 指纹
+
+指纹采用的是单个脚本的形式 有一些特殊情况靠配置文件或者json不好处理  
 
 - shiro
 - struts2

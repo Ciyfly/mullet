@@ -3,17 +3,17 @@
 '''
 Date: 2022-03-17 17:09:23
 LastEditors: recar
-LastEditTime: 2022-03-24 11:43:52
+LastEditTime: 2022-04-01 11:38:50
 '''
 
 from plugins.fingerprint.scripts.base import FingerprintCheck
-import requests
 
 class Check(FingerprintCheck):
     def __init__(self):
         super(Check, self).__init__()
     
-    def verify(self, host):
+    def verify(self, url_info):
+        host = url_info.get('base_url')
         self.name = "thinkphp"
         url = f"{host}/?c=4e5e5d7364f443e28fbf0d3ae744a59a"
         try:

@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-03-23 18:37:45
+LastEditTime: 2022-04-01 11:19:22
 '''
 from lib.log import logger
 from lib.work import Worker
@@ -30,7 +30,8 @@ class Fingerprint(Base):
     # 先加上所有script 然后copy测试
     def load_script(self):
         script_path = os.path.join(self.base_path, "scripts")
-        sys.path.append(script_path)
+        framework_script_path = os.path.join(self.base_path, "scripts", "framework")
+        sys.path.append(framework_script_path)
         all_fingerprint_path_list = Utils.get_all_filepaths(script_path)
         for fingerprint_path in all_fingerprint_path_list:
             _, fingerprint = os.path.split(fingerprint_path)
@@ -44,7 +45,6 @@ class Fingerprint(Base):
         self.logger.debug("fingerprint count: {0}".format(len(self.fingerprint_dict.keys())))            
 
     def run(self, url_info, req, rsp):
-        host = url_info.get('base_url')
         def consumer(data):
             fingerprint_name, host = data
             fingerprint_plugins = copy.copy(self.fingerprint_dict.get(fingerprint_name))
@@ -62,4 +62,4 @@ class Fingerprint(Base):
                 self.to_result(result)
         self.fingerprint_work = Worker(consumer, consumer_count=10, block=self.block)        
         for fingerprint_name in self.fingerprint_dict.keys():
-            self.fingerprint_work.put((fingerprint_name, host))
+            self.fingerprint_work.put((fingerprint_name, url_info, rsp))
