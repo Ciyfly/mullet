@@ -3,7 +3,7 @@
 '''
 Date: 2022-04-01 15:44:40
 LastEditors: recar
-LastEditTime: 2022-04-01 15:55:15
+LastEditTime: 2022-04-01 18:02:16
 '''
 
 
@@ -12,7 +12,7 @@ from plugins.poc.base import PocBase
 class Poc(PocBase):
     def __init__(self):
         super(PocBase, self).__init__()
-        self.name = "Spring 远程命令执行漏洞"
+        self.name = "Spring4Shell"
         self.cve = ""
         self.author = "Recar"
         self.desc = """Spring"""

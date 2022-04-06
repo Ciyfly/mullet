@@ -4,7 +4,7 @@
 Author: Recar
 Date: 2021-06-28 22:40:10
 LastEditors: recar
-LastEditTime: 2022-03-29 14:53:15
+LastEditTime: 2022-04-06 10:15:35
 
 '''
 from lib.log import logger
@@ -141,7 +141,18 @@ class Utils(object):
         msg = "mullet v0.1"
         # sfw = True
         # s = milk_random_cow(msg, sfw=sfw)
-        s = "mullet"
+        # s = "mullet"
+        s = '''
+        
+███╗   ███╗██╗   ██╗██╗     ██╗     ███████╗████████╗
+████╗ ████║██║   ██║██║     ██║     ██╔════╝╚══██╔══╝
+██╔████╔██║██║   ██║██║     ██║     █████╗     ██║   
+██║╚██╔╝██║██║   ██║██║     ██║     ██╔══╝     ██║   
+██║ ╚═╝ ██║╚██████╔╝███████╗███████╗███████╗   ██║   
+╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚══════╝╚══════╝   ╚═╝   
+                                                     
+                                     梭鱼 by recar
+        '''
         logger.info(s)
 
     @staticmethod
