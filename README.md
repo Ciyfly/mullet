@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-01-11 18:08:25
  * @LastEditors: recar
- * @LastEditTime: 2022-04-07 10:58:51
+ * @LastEditTime: 2022-04-07 18:20:52
 -->
 # mullet
 扫描器 梭鱼  
@@ -35,7 +35,8 @@ python main.py --help
 ### 主动扫描
 `python main.py -u "http://192.168.19.144:8080/level1.php?name=asdasdasd"`  
 
-![avatar](imgs/主动扫描.jpg)
+![avatar](imgs/主动扫描1.jpg)
+![avatar](imgs/主动扫描2.jpg)
 
 
 
@@ -43,6 +44,13 @@ python main.py --help
 
 默认监听`8686` 端口  
 `python main.py`
+
+![avatar](imgs/被动扫描.jpg)
+
+## 报告
+输出报告是html格式的在 output目录下  
+
+![avatar](imgs/报告.jpg)
 
 ## api
 支持 web 的api形式 创建扫描 默认监听`8787`端口
