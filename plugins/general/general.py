@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-18 18:23:19
 LastEditors: recar
-LastEditTime: 2022-03-31 17:01:14
+LastEditTime: 2022-04-07 16:18:16
 '''
 
 from lib.log import logger
@@ -26,11 +26,6 @@ class General(Base):
         self.result_list = list()
         self.general_dict = dict()
         self.load_script()
-        def consumer(data):
-            general_name, url_info, req, rsp, violent = data
-            general_plugins = copy.copy(self.general_dict.get(general_name))
-            general_plugins.verify(url_info, req, rsp, violent=violent)
-        self.general_work = Worker(consumer, consumer_count=10, block=self.block)
 
     # 先加上所有script 然后copy测试
     def load_script(self):
@@ -49,7 +44,12 @@ class General(Base):
         self.logger.info("general count: {0}".format(len(self.general_dict.keys())))            
 
     def run(self, url_info, req, rsp, open_plugins_list=None, violent=False):
+        def consumer(data):
+            general_name, url_info, req, rsp, violent = data
+            general_plugins = copy.copy(self.general_dict.get(general_name))
+            general_plugins.verify(url_info, req, rsp, violent=violent)        
+        self.general_work = Worker(consumer, consumer_count=10, block=self.block)
         for general_name in self.general_dict.keys():
             if general_name in open_plugins_list:
-                self.logger.debug("general plugins: {0}".format(general_name))
+                self.logger.debug("load general plugins: {0}".format(general_name))
                 self.general_work.put((general_name, url_info, req, rsp, violent))

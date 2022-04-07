@@ -4,7 +4,7 @@
 Author: Recar
 Date: 2021-06-28 22:40:10
 LastEditors: recar
-LastEditTime: 2022-04-06 10:15:35
+LastEditTime: 2022-04-07 10:32:44
 
 '''
 from lib.log import logger
@@ -152,6 +152,7 @@ class Utils(object):
 ╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚══════╝╚══════╝   ╚═╝   
                                                      
                                      梭鱼 by recar
+                                     github.com/Ciyfly
         '''
         logger.info(s)
 

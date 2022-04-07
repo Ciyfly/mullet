@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-11 18:16:18
 LastEditors: recar
-LastEditTime: 2022-03-21 15:59:20
+LastEditTime: 2022-04-07 18:09:37
 '''
 from plugins.scan import Base
 from lib.work import Worker, WorkData
@@ -18,31 +18,6 @@ class SensitiveInfo(Base):
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.seninfo_dict = dict()
         self._load_dict()
-        def consumer(work_data):
-            url = work_data.url
-            response = self.send_request(url, method="GET")
-            if response is None:
-                return
-            condition_dict = work_data.condition
-            for tag in condition_dict.keys():
-                if tag == "status":
-                    if str(response.status_code)!=str(condition_dict[tag]):
-                        return False
-                elif tag == "type":
-                    if str(response.headers["content-type"])!=str(condition_dict[tag]):
-                        return False
-                elif tag == "match":
-                    if str(condition_dict[tag]) not in response.text:
-                        return False
-            self.logger.info(f"[+] SensitiveInfo: {url}")
-            result = {
-                "plugins": self.plugins,
-                "url": url,
-                "payload": url,
-                "desc": "敏感信息泄露",
-            }
-            self.to_result(result)
-        self.seninfo_work = Worker(consumer, consumer_count=1, block=self.block)
 
     def _load_dict(self):
         dict_path = os.path.join(self.base_path,"sensitive_info.txt")
@@ -65,9 +40,34 @@ class SensitiveInfo(Base):
                     value = condition.split("=")[-1].strip()
                     condition_dict[tag]=value
                 self.seninfo_dict[path] = condition_dict
-        self.logger.debug("load sensitive_info dict: {}".format(len(self.seninfo_dict)))
+        self.logger.info("load sensitive_info count: {}".format(len(self.seninfo_dict)))
 
     def run(self, url_info, req, rsp):
+        def consumer(work_data):
+            url = work_data.url
+            response = self.request(url, method="GET")
+            if response is None:
+                return
+            condition_dict = work_data.condition
+            for tag in condition_dict.keys():
+                if tag == "status":
+                    if str(response.status_code)!=str(condition_dict[tag]):
+                        return False
+                elif tag == "type":
+                    if str(response.headers["content-type"])!=str(condition_dict[tag]):
+                        return False
+                elif tag == "match":
+                    if str(condition_dict[tag]) not in response.text:
+                        return False
+            result = {
+                "plugins": self.plugins,
+                "url": url,
+                "payload": url,
+                "desc": "敏感信息泄露",
+            }
+            self.print_result(result)
+            self.to_result(result)
+        self.seninfo_work = Worker(consumer, consumer_count=1, block=self.block)        
         if url_info.get("type") != "dynamic":
             return
         url = url_info.get('base_url')

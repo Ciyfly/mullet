@@ -3,7 +3,7 @@
 '''
 Date: 2021-06-25 17:42:42
 LastEditors: recar
-LastEditTime: 2022-03-31 12:30:16
+LastEditTime: 2022-04-07 18:08:48
 '''
 import js2py
 import re
@@ -79,7 +79,6 @@ class Scan(Base):
         sen_info = self.has_sen_info(all_maps)
         self.logger.debug("sen_info: {0}".format(sen_info))
         if sen_info:
-            self.logger.info("[+] jsonp ")
             result = {
                 "plugins": self.plugins_name,
                 "url": url,

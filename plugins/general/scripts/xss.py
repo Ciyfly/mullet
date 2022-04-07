@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-30 16:12:12
 LastEditors: recar
-LastEditTime: 2022-03-31 17:11:58
+LastEditTime: 2022-04-07 18:09:23
 '''
 
 
@@ -524,3 +524,5 @@ class Scan(Base):
                                         "payload": echo_query+"="+truepayload,
                                         "desc": "script脚本内容可被任意设置 测试payload:{0}".format(truepayload)
                                         }
+                                        self.print_result(result)
+                                        self.to_result(result)

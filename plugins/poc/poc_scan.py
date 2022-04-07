@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-21 15:28:29
 LastEditors: recar
-LastEditTime: 2022-03-23 18:38:50
+LastEditTime: 2022-04-07 18:09:33
 '''
 
 from lib.log import logger
@@ -54,7 +54,7 @@ class PocScan(Base):
             self.poc_fingerprint_dict[fingerprint].append(poc_class)
             self.poc_name_dict[poc] = poc_class
             count +=1
-        self.logger.debug("poc count: {0}".format(count))
+        self.logger.info("load poc count: {0}".format(count))
 
     def run_poc_by_name(self, url_info, req, rsp, poc_name):
         '''
@@ -76,7 +76,6 @@ class PocScan(Base):
         def consumer(poc_plugins):
             match, result = poc_plugins.run(self.logger, self.report_work, url_info)
             if match:
-                self.logger.info("[+] PocScan: {0}".format(result.get("plugins")))
                 result["url_info"] = url_info
                 self.print_result(result)
                 self.to_result(result)

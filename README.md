@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-01-11 18:08:25
  * @LastEditors: recar
- * @LastEditTime: 2022-04-01 14:24:50
+ * @LastEditTime: 2022-04-07 10:58:51
 -->
 # mullet
 扫描器 梭鱼  
@@ -15,13 +15,29 @@ poc是跟指纹关联的 指纹匹配了才会发对应的poc
 采用统一请求的方式 限流 所有发的请求都会被限流  
 内部多个插件使用多生产多消费的模式  
 
+
+## 安装
+
+仅支持python3的环境  
+
+```shell
+git clone git@github.com:Ciyfly/mullet.git
+cd mullet
+python3 -m venv venv
+source venv
+pip install --upgrade pip
+pip install -r requirements.txt
+python main.py --help
+```
+
 ## 使用
 
 ### 主动扫描
-
 `python main.py -u "http://192.168.19.144:8080/level1.php?name=asdasdasd"`  
 
 ![avatar](imgs/主动扫描.jpg)
+
+
 
 ### 被动扫描
 
@@ -109,3 +125,5 @@ https://github.com/w-digital-scanner/w13scan/
 https://github.com/sqlmapproject/sqlmap  
 https://mp.weixin.qq.com/s?__biz=MzU2NzcwNTY3Mg==&mid=2247483698&idx=1&sn=9733c6078516c34963a4c0486c6d1872&chksm=fc986815cbefe103975c2e554ef2667b931e14b2d1dcca407af9edbad83ea72f3ac88efd8d22&mpshare=1&scene=1&srcid=&sharer_sharetime=1588849508551&sharer_shareid=19604935512cdb60a84a4a498605fc8d&key=e4739a048b456af8bbf436c6fb2173754f53fcd63e766a439186e0a2433cd084a69e23876cc446623cb005c3c9fed06af918b7b082f604e7a23c136961d5a1e633f4a60b65b241dea730f7c13578ea94&ascene=1&uin=MTM3MzQ3ODE0MA%3D%3D&devicetype=Windows+10&version=62080079&lang=zh_CN&exportkey=AZ%2F8pd18PHTzKD6ytyi7PPk%3D&pass_ticket=ssxjxDrN0aRCdy2TGXV37%2Bg0cYgtEknB95Y1dXjxGOtpxjCYC6wfPOq5QXvs3lzE  
 
+## 声明
+使用mullet前请遵守当地法律,mullet仅提供给教育行为使用。

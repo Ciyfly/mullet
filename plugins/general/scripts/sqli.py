@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-24 09:46:27
 LastEditors: recar
-LastEditTime: 2022-03-31 12:29:49
+LastEditTime: 2022-04-07 18:15:52
 '''
 from plugins.scan import Base
 import xml.etree.ElementTree as ET
@@ -202,7 +202,7 @@ class Scan(Base):
         混合参数
         '''
         match_boundaries = list()
-        origin_rsp_text = Utils.remove_html_tag(rsp.get("text"))
+        origin_rsp_text = Utils.remove_html_tag(rsp.get("text", ''))
         query_dict = url_info.get("query_dict")
         origin_url = url_info.get("origin_url")
         base_url = url_info.get("url").split("?")[0]

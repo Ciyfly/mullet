@@ -3,14 +3,19 @@
 '''
 Date: 2022-01-14 11:29:39
 LastEditors: recar
-LastEditTime: 2022-03-31 17:12:09
+LastEditTime: 2022-04-07 11:40:59
 '''
 from urllib.parse import unquote
 from urllib.parse import urlparse, parse_qs
 from lib.utils import Utils
 from lib.log import logger
+import traceback
 import requests
 
+http_version_map = {
+    10: "HTTP/1.0",
+    11: "HTTP/1.1"
+}
 
 class HTTPParser(object):
 
@@ -68,7 +73,7 @@ class HTTPParser(object):
     @staticmethod
     def req_to_urlinfo(req):
         url_info = dict()
-        url = req.url
+        url = req.get('url')
         url = unquote(url, 'utf-8')
         url_info["origin_url"] = url
         url_info["method"] = 'GET'
@@ -146,10 +151,6 @@ class HTTPParser(object):
 
     @staticmethod
     def rsp_to_reqtext(rsp):
-        http_version_map = {
-            10: "HTTP/1.0",
-            11: "HTTP/1.1"
-        }
         req = rsp.request
         req_data = '%s %s %s\r\n' % (str(req.method), str(req.path_url), str(http_version_map[rsp.raw.version]))
         # Add headers to the request
@@ -161,12 +162,32 @@ class HTTPParser(object):
         return req_data
 
     @staticmethod
-    def rsp_to_text(rsp):
+    def rsp_to_dict(response):
         rsp = dict()
-        rsp["status_code"] = rsp.status_code
-        rsp["headers"] = rsp.headers
-        rsp["text"] = str(rsp.text)
+        rsp["status_code"] = response.status_code
+        rsp["headers"] = response.headers
+        rsp["text"] = str(response.text)
+        rsp['req'] = response.request
         return rsp
+
+    @staticmethod
+    def rsp_to_req_dict(response):
+        request = response.request
+        url = request.url
+        req = dict()
+        parse_url = urlparse(url)
+        req["url"] = request.url
+        req["path"] = parse_url.path
+        req["params"] = parse_url.params
+        req["query"] = parse_url.query
+        req["host"] = parse_url.netloc        
+        req["method"] = request.method
+        req["path"] = request.path_url
+        req["http_version"] = http_version_map[response.raw.version]
+        req["headers"] = request.headers
+        req["text"] = str(request.body)
+        req["raw"] = HTTPParser.rsp_to_reqtext(response)
+        return req
 
     @staticmethod
     def get_res_req_by_url(url):
@@ -174,6 +195,7 @@ class HTTPParser(object):
         headers["User-Agent"] = Utils.get_random_ua()
         try:
             response = requests.get(url,headers=headers,timeout=10)
-            return response, response.request
+            return HTTPParser.rsp_to_dict(response), HTTPParser.rsp_to_req_dict(response)
         except:
+            logger.debug(traceback.format_exc())
             return None, None

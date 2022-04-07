@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-23 16:25:57
 LastEditors: recar
-LastEditTime: 2022-04-01 15:14:18
+LastEditTime: 2022-04-07 11:19:25
 '''
 from plugins.fingerprint.scripts.base import FingerprintCheck
 import requests
@@ -14,6 +14,6 @@ class Check(FingerprintCheck):
 
     def verify(self, url_info, req, rsp):
         self.name = "shiro"
-        if "rememberMe=deleteMe" in rsp.get("headers").headers.get('Set-Cookie'):
+        if rsp.get("headers") and "rememberMe=deleteMe" in rsp.get("headers").get('Set-Cookie', ''):
             return True, self.name
         return False, None

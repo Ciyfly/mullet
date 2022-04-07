@@ -1,3 +1,5 @@
+pip==22.0.4
+setuptools==41.2.0
 asgiref==3.3.4
 backports.zoneinfo==0.2.1
 blinker==1.4

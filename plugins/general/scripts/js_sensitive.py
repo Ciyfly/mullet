@@ -3,7 +3,7 @@
 '''
 Date: 2022-03-31 17:47:30
 LastEditors: recar
-LastEditTime: 2022-03-31 17:53:16
+LastEditTime: 2022-04-07 18:08:43
 '''
 # https://github.com/w-digital-scanner/w13scan/blob/master/W13SCAN/scanners/PerFile/js_sensitive_content.py
 import re
@@ -95,7 +95,7 @@ class Scan(Base):
 
     def verify(self, url_info, req, rsp, violent=False):
         url = url_info.get("url")
-        rsp_text = rsp.get('text')
+        rsp_text = rsp.get('text', '')
         for name, _ in self.regx.items():
             texts = re.findall(_, rsp_text, re.M | re.I)
             issuc = False

@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 11:05:17
 LastEditors: recar
-LastEditTime: 2022-03-31 17:13:08
+LastEditTime: 2022-04-07 16:27:25
 '''
 from lib.work import Worker
 from plugins.report import Report
@@ -123,7 +123,6 @@ class Controller(object):
             if self.switch_general:                    
                 while not self.general_plugins_handler.general_work.is_end():
                     time.sleep(3)
-            # poc这里要按指纹来跑
             if self.switch_poc:
                 for result_info in self.report.result_list:
                     plugins = result_info.plugins
@@ -132,8 +131,9 @@ class Controller(object):
                         self.logger.debug("fingerprint: {0} ->poc".format(payload))
                         self.poc_handler.run(url_info, req, rsp, payload)
                 if self.switch_poc and self.switch_fingerprint:
-                    while not self.poc_handler.poc_work.is_end():
-                        time.sleep(3)
+                    if hasattr(self.poc_handler, "poc_work"):
+                        while not self.poc_handler.poc_work.is_end():
+                            time.sleep(3)
                 return
 
     def run_poc(self, url_info, req, rsp, poc_name):

@@ -3,7 +3,7 @@
 '''
 Date: 2022-01-12 16:28:33
 LastEditors: recar
-LastEditTime: 2022-03-30 16:08:53
+LastEditTime: 2022-04-07 11:34:53
 '''
 from cmath import log
 from lib.data import controller
@@ -45,7 +45,7 @@ def cli(server_addr, violent, url, url_file, poc, debug):
             urls.append(url)
     # 单个poc
     if poc:
-        logger.info("run poc: {0}".format(poc))
+        logger.info("Run Poc: {0}".format(poc))
         for url in urls:
             rsp, req = HTTPParser.get_res_req_by_url(url)
             if rsp is None:
@@ -55,10 +55,10 @@ def cli(server_addr, violent, url, url_file, poc, debug):
             controller.run_poc(url_info, req, rsp, poc)
     # scan
     elif not poc and urls:
-        logger.info("scan")
+        logger.info("mode: Scan")
         for url in urls:
             rsp, req = HTTPParser.get_res_req_by_url(url)
-            if rsp is None:
+            if rsp is None and req is None:
                 logger.error("{0} :不能访问".format(url))
                 continue            
             url_info = HTTPParser.req_to_urlinfo(req)
@@ -66,7 +66,7 @@ def cli(server_addr, violent, url, url_file, poc, debug):
             logger.info("end")
 
     else:
-        logger.info("proxy")
+        logger.info("mode: Proxy")
         # 被动扫描
         controller.init(violent=violent)
         addr, port = server_addr.split(":")
