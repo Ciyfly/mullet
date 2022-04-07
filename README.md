@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-01-11 18:08:25
  * @LastEditors: recar
- * @LastEditTime: 2022-04-07 18:20:52
+ * @LastEditTime: 2022-04-07 18:32:42
 -->
 # mullet
 扫描器 梭鱼  
@@ -31,6 +31,8 @@ python main.py --help
 ```
 
 ## 使用
+
+![avatar](imgs/使用.jpg)
 
 ### 主动扫描
 `python main.py -u "http://192.168.19.144:8080/level1.php?name=asdasdasd"`  
