@@ -91,7 +91,7 @@ class HTTPParser(object):
             url_info["ssl"] = True
             url_info["base_url"] = "https://{0}".format(url_info["host"])
             if ":" not in url_info["host"]:
-                url_info["port"] = url_info["443"]
+                url_info["port"] = 443
         else:
             url_info["ssl"] = False
             url_info["base_url"] = "http://{0}".format(url_info["host"])
@@ -193,6 +193,7 @@ class HTTPParser(object):
     def get_res_req_by_url(url):
         headers = dict()
         headers["User-Agent"] = Utils.get_random_ua()
+        headers["Connection"] = "close"
         try:
             response = requests.get(url,headers=headers,timeout=10)
             return HTTPParser.rsp_to_dict(response), HTTPParser.rsp_to_req_dict(response)
